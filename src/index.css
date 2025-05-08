@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+body {
+  font-family: 'Hanuman', sans-serif;
+}
 
 @custom-variant dark (&:is(.dark *));
 

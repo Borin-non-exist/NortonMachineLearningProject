@@ -1,13 +1,9 @@
-import { Button } from "./components/ui/button"
+import React from 'react';
+import AppRouter from './Router/Router';
 
 function App() {
-
-  return (
-    <>
-      <h1 className="bg-blue-50 text-2xl ">Root App</h1>
-      <Button variant={"default"}> Error</Button>
-    </>
-  )
+  return <AppRouter />;
 }
 
-export default App
+export default App;
+
