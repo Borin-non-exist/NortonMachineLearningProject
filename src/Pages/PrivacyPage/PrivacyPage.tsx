@@ -1,60 +1,70 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom"; // <-- import Link
-import { FaArrowRight, FaBars } from "react-icons/fa";
+import React from "react";
 
 const PrivacyPage: React.FC = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-white font-sans text-black relative">
-      {/* Navbar */}
-      <nav className="bg-white shadow-md rounded-b-xl px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left: Logo */}
-          <div className="flex items-center gap-2">
-            <img src="/src/assets/logo.jpg" alt="Logo" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-xl text-cyan-700">PiKrous</span>
-          </div>
+    <section className="bg-white px-6 sm:px-10 md:px-20 py-24 min-h-screen">
+      {/* Privacy & Policy Title */}
+      <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+        Privacy & Policy
+      </h2>
 
-          {/* Hamburger Button */}
-          <div className="sm:hidden">
-            <button onClick={() => setMenuOpen(!menuOpen)}>
-              <FaBars className="text-2xl text-cyan-700" />
-            </button>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden sm:flex items-center gap-6">
-            <ul className="flex gap-4 font-medium text-sm items-center">
-              <li>
-                <Link to="/" className="hover:text-cyan-700">Home</Link>
-              </li>
-              <li className="hover:text-cyan-700 cursor-pointer">About Us</li>
-              <li className="bg-gray-300 px-4 py-1 rounded-full text-black">Privacy & Policy</li>
-            </ul>
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-full shadow-md text-sm flex items-center gap-2">
-              Try PiKrous <FaArrowRight />
-            </button>
-          </div>
+      {/* Privacy Sections */}
+      <div className="space-y-12 max-w-4xl mx-auto text-gray-800">
+        {/* Section 1 */}
+        <div>
+          <h3 className="text-xl font-bold mb-3">
+            Security compliance & accreditation
+          </h3>
+          <p className="text-sm leading-relaxed text-justify">
+            Quisque cursus nisi vel tempor sollicitudin. Praesent condimentum
+            eget metus vitae aliquam. Vivamus consectetur sapien at suscipit
+            imperdiet. Cras suscipit varius eros, ac tempor metus mattis non.
+            Nam nisi lectus, sagittis non purus et, venenatis imperdiet tellus.
+            Etiam hendrerit, ligula ac imperdiet dignissim, libero metus cursus
+            mauris, a pulvinar ligula quam et ex. Nullam et turpis consequat,
+            scelerisque erat at, suscipit ligula. Cras justo leo, tempus sit
+            amet sem vitae, aliquam tincidunt lectus. Mauris quis lacus lorem.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Pellentesque quis urna ut mi pharetra facilisis. Etiam facilisis est
+            id risus tristique, vel tempus elit posuere. Maecenas faucibus lacus
+            sed dolor ullamcorper tristique.
+            <br />
+            <br />
+            Integer scelerisque sem a magna luctus, ut vehicula nisl posuere.
+            Donec vestibulum dictum felis, fermentum pellentesque ipsum rutrum
+            tincidunt. Curabitur feugiat felis non justo sodales, non hendrerit
+            dolor auctor. Vestibulum lacinia.
+          </p>
         </div>
 
-        {/* Mobile Dropdown Menu */}
-        {menuOpen && (
-          <div className="sm:hidden mt-4 flex flex-col gap-3 items-center text-sm">
-            <ul className="flex flex-col gap-2 w-full text-center font-medium">
-              <li>
-                <Link to="/" className="hover:text-cyan-700 cursor-pointer">Home</Link>
-              </li>
-              <li className="hover:text-cyan-700 cursor-pointer">About Us</li>
-              <li className= "bg-gray-300 px-4 py-2 rounded-full text-black block">Privacy & Policy</li>
-            </ul>
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full shadow-md flex items-center gap-2">
-              Try PiKrous <FaArrowRight />
-            </button>
-          </div>
-        )}
-      </nav>
-    </div>
+        {/* Section 2 */}
+        <div>
+          <h3 className="text-xl font-bold mb-3">Customer requirements</h3>
+          <p className="text-sm leading-relaxed text-justify">
+            Donec suscipit faucibus porttitor. Cras vehicula vel erat quis
+            placerat. Vestibulum id leo at nulla aliquet luctus. Donec suscipit
+            faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum
+            id leo at nulla aliquet luctus.
+          </p>
+        </div>
+
+        {/* Section 3 */}
+        <div className="mb-12">
+          <h3 className="text-xl font-bold mb-3">
+            Security & privacy commitments
+          </h3>
+          <p className="text-sm leading-relaxed text-justify">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at
+            orci enim. Etiam a lobortis nunc, vel auctor lorem. Aliquam erat
+            volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
+            facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue.
+            Suspendisse auctor lacus in nulla fringilla pulvinar. Donec suscipit
+            faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum
+            id leo at nulla aliquet luctus.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 };
 

@@ -1,61 +1,54 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom"; // <-- import Link
-import { FaArrowRight, FaBars } from "react-icons/fa";
+import React from "react";
 
-const PrivacyPage: React.FC = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white font-sans text-black relative">
-      {/* Navbar */}
-      <nav className="bg-white shadow-md rounded-b-xl px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left: Logo */}
-          <div className="flex items-center gap-2">
-            <img src="/src/assets/logo.jpg" alt="Logo" className="w-10 h-10 rounded-full" />
-            <span className="font-bold text-xl text-cyan-700">PiKrous</span>
-          </div>
+    <section className="bg-white px-6 sm:px-10 md:px-55 py-24 min-h-screen">
+      {/* Title */}
+      <h2 className="text-3xl sm:text-4xl font-bold text-center underline underline-offset-4 mb-16">
+        AI Purpose
+      </h2>
 
-          {/* Hamburger Button */}
-          <div className="sm:hidden">
-            <button onClick={() => setMenuOpen(!menuOpen)}>
-              <FaBars className="text-2xl text-cyan-700" />
-            </button>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden sm:flex items-center gap-6">
-            <ul className="flex gap-4 font-medium text-sm items-center">
-              <li>
-                <Link to="/" className="hover:text-cyan-700">Home</Link>
-              </li>
-              <li className="bg-gray-300 px-4 py-1 rounded-full text-black">About Us</li>
-              <li className="hover:text-cyan-700">Privacy & Policy</li>
-            </ul>
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-full shadow-md text-sm flex items-center gap-2">
-              Try PiKrous <FaArrowRight />
-            </button>
-          </div>
+      {/* Row 1: Text on Left, Image on Right */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+        <div>
+          <p className="text-sm text-gray-800 leading-relaxed text-justify">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at orci enim. Etiam a lobortis nunc,
+            vel auctor lorem. Aliquam erat volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
+            facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue. Suspendisse auctor lacus in nulla fringilla
+            pulvinar. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id leo
+            at nulla aliquet luctus.
+          </p>
         </div>
+        <div className="flex items-center justify-center">
+          <img
+            src="/src/assets/question_mark_man_icon.jpg" // Replace with your actual image path
+            alt="Thinking Icon"
+            className="w-32 sm:w-40 md:w-48 h-auto"
+          />
+        </div>
+      </div>
 
-        {/* Mobile Dropdown Menu */}
-        {menuOpen && (
-          <div className="sm:hidden mt-4 flex flex-col gap-3 items-center text-sm">
-            <ul className="flex flex-col gap-2 w-full text-center font-medium">
-              <li>
-                <Link to="/" className="hover:text-cyan-700 cursor-pointer">Home</Link>
-              </li>
-              <li className="bg-gray-300 px-4 py-2 rounded-full text-black block">About Us</li>
-              <li className= "hover:text-cyan-700 cursor-pointer">Privacy & Policy</li>
-            </ul>
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-full shadow-md flex items-center gap-2">
-              Try PiKrous <FaArrowRight />
-            </button>
-          </div>
-        )}
-      </nav>
-    </div>
+      {/* Row 2: Image on Left, Text on Right */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div className="flex justify-center">
+          <img
+            src="/src/assets/sickicon.jpg" // Replace with your own image
+            alt="Speaking Icon"
+            className="w-32 sm:w-40 md:w-48 h-auto"
+          />
+        </div>
+        <div>
+          <p className="text-sm text-gray-800 leading-relaxed text-justify">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at orci enim. Etiam a lobortis nunc,
+            vel auctor lorem. Aliquam erat volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
+            facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue. Suspendisse auctor lacus in nulla fringilla
+            pulvinar. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id leo
+            at nulla aliquet luctus.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 };
 
-export default PrivacyPage;
+export default AboutPage;

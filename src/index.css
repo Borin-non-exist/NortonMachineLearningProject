@@ -3,6 +3,9 @@
 body {
   font-family: 'Hanuman', sans-serif;
 }
+html {
+  scroll-behavior: smooth;
+}
 
 @custom-variant dark (&:is(.dark *));
 
