@@ -1,3 +1,4 @@
+// src/pages/SignUpPage.tsx
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -65,25 +66,28 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10 flex flex-col items-center justify-center relative">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 px-4 py-10 flex flex-col items-center justify-center relative transition-colors">
+      {/* Logo + Site Name */}
       <div className="absolute top-4 left-6 flex items-center gap-2">
         <img
           src="/src/assets/logo.jpg"
           alt="Logo"
-          className="w-8 h-8 rounded-full"
+          className="w-8 h-8 rounded-full border border-blue-200 dark:border-gray-600 transition-colors"
         />
-        <span className="text-lg font-semibold">PiKrous</span>
+        <span className="text-lg font-semibold text-blue-600 dark:text-blue-300 transition-colors">
+          PiKrous
+        </span>
       </div>
 
-      <h1 className="text-xl font-bold text-center mb-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 text-blue-600 dark:text-blue-300 transition-colors">
         Let’s Get You Started
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-gray-200 rounded-lg p-6 space-y-4 shadow-md"
+        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4 shadow-md border border-blue-100 dark:border-gray-700 transition-colors"
       >
-        <h2 className="text-lg font-bold text-center text-gray-700 mb-2">
+        <h2 className="text-lg font-bold text-center text-blue-600 dark:text-blue-300 mb-2 transition-colors">
           Create New Account
         </h2>
 
@@ -95,7 +99,7 @@ const SignUpPage: React.FC = () => {
               placeholder="First Name"
               value={form.firstName}
               onChange={handleChange}
-              className="bg-white px-3 py-2 rounded border border-gray-300 text-sm w-full"
+              className="bg-blue-50 dark:bg-gray-700 px-3 py-2 rounded border border-blue-200 dark:border-gray-600 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
             />
             {errors.firstName && (
               <p className="text-red-600 text-xs mt-1">*{errors.firstName}*</p>
@@ -108,7 +112,7 @@ const SignUpPage: React.FC = () => {
               placeholder="Last Name"
               value={form.lastName}
               onChange={handleChange}
-              className="bg-white px-3 py-2 rounded border border-gray-300 text-sm w-full"
+              className="bg-blue-50 dark:bg-gray-700 px-3 py-2 rounded border border-blue-200 dark:border-gray-600 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
             />
             {errors.lastName && (
               <p className="text-red-600 text-xs mt-1">*{errors.lastName}*</p>
@@ -124,7 +128,7 @@ const SignUpPage: React.FC = () => {
               placeholder="Gender"
               value={form.gender}
               onChange={handleChange}
-              className="bg-white px-3 py-2 rounded border border-gray-300 text-sm w-full"
+              className="bg-blue-50 dark:bg-gray-700 px-3 py-2 rounded border border-blue-200 dark:border-gray-600 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
             />
             {errors.gender && (
               <p className="text-red-600 text-xs mt-1">*{errors.gender}*</p>
@@ -136,7 +140,7 @@ const SignUpPage: React.FC = () => {
               name="dob"
               value={form.dob}
               onChange={handleChange}
-              className="bg-white px-3 py-2 rounded border border-gray-300 text-sm w-full"
+              className="bg-blue-50 dark:bg-gray-700 px-3 py-2 rounded border border-blue-200 dark:border-gray-600 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
             />
             {errors.dob && (
               <p className="text-red-600 text-xs mt-1">*{errors.dob}*</p>
@@ -151,7 +155,7 @@ const SignUpPage: React.FC = () => {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="bg-white w-full px-3 py-2 rounded border border-gray-300 text-sm"
+            className="bg-blue-50 dark:bg-gray-700 w-full px-3 py-2 rounded border border-blue-200 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
           />
           {errors.email && (
             <p className="text-red-600 text-xs mt-1">*{errors.email}*</p>
@@ -165,12 +169,12 @@ const SignUpPage: React.FC = () => {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="bg-white w-full px-3 py-2 pr-10 rounded border border-gray-300 text-sm"
+            className="bg-blue-50 dark:bg-gray-700 w-full px-3 py-2 pr-10 rounded border border-blue-200 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 text-gray-600"
+            className="absolute right-3 top-2.5 text-blue-600 dark:text-gray-200 transition-colors"
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
@@ -186,12 +190,12 @@ const SignUpPage: React.FC = () => {
             placeholder="Confirm Password"
             value={form.confirmPassword}
             onChange={handleChange}
-            className="bg-white w-full px-3 py-2 pr-10 rounded border border-gray-300 text-sm"
+            className="bg-blue-50 dark:bg-gray-700 w-full px-3 py-2 pr-10 rounded border border-blue-200 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-800 dark:text-gray-100 transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-3 top-2.5 text-gray-600"
+            className="absolute right-3 top-2.5 text-blue-600 dark:text-gray-200 transition-colors"
           >
             {showConfirm ? <FaEyeSlash /> : <FaEye />}
           </button>
@@ -202,16 +206,16 @@ const SignUpPage: React.FC = () => {
           )}
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-gray-600">
+        <label className="flex items-center gap-2 text-xs text-blue-700 dark:text-gray-300 transition-colors">
           <input
             type="checkbox"
             name="agree"
             checked={form.agree}
             onChange={handleChange}
-            className="w-4 h-4"
+            className="w-4 h-4 text-blue-600 dark:text-gray-300 border border-blue-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 transition-colors"
           />
           I agree to the{" "}
-          <span className="text-gray-500 underline cursor-pointer">
+          <span className="text-blue-600 dark:text-blue-300 underline cursor-pointer transition-colors">
             terms and services
           </span>
         </label>
@@ -219,7 +223,7 @@ const SignUpPage: React.FC = () => {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-sm py-2 rounded hover:bg-gray-100 transition"
+          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-blue-600 dark:border-gray-600 text-blue-600 dark:text-gray-100 text-sm py-2 rounded hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors"
         >
           <FcGoogle className="text-xl" />
           Sign in with Google
@@ -227,20 +231,18 @@ const SignUpPage: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm font-semibold transition"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-semibold transition-colors"
         >
           Sign Up
         </button>
       </form>
 
       {showAgreementError && (
-        <div className="mt-4 bg-white border border-gray-300 rounded-lg px-4 py-3 flex justify-between items-center w-full max-w-md shadow">
-          <p className="text-sm font-medium text-red-600">
-            You need to Agree with Terms and Services
-          </p>
+        <div className="mt-4 bg-white dark:bg-gray-800 border border-blue-200 dark:border-gray-600 rounded-lg px-4 py-3 flex justify-between items-center w-full max-w-md shadow transition-colors">
+          <p className="text-sm font-medium text-red-600">You need to agree with Terms and Services</p>
           <button
             onClick={() => setShowAgreementError(false)}
-            className="text-red-500 font-semibold text-sm hover:underline"
+            className="text-red-500 font-semibold text-sm hover:underline transition-colors"
           >
             Close
           </button>
