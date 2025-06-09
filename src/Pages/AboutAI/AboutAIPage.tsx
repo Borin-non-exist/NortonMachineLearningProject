@@ -13,11 +13,15 @@ const AboutPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
         <div>
           <p className="text-sm text-blue-800 dark:text-gray-300 leading-relaxed text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at orci enim. Etiam a lobortis nunc,
-            vel auctor lorem. Aliquam erat volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
-            facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue. Suspendisse auctor lacus in nulla fringilla
-            pulvinar. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id leo
-            at nulla aliquet luctus.
+            The purpose of the <strong>Expert System-Based Analysis of General Disease Symptoms</strong> is to simulate
+            a human doctor’s reasoning in diagnosing diseases. The AI collects raw symptom inputs from patients and processes
+            them using a medical rule base to determine possible conditions. This system helps:
+            <br />
+            <br />
+            - Speed up early disease detection. <br />
+            - Assist rural or underserved areas. <br />
+            - Reduce misdiagnosis from human error. <br />
+            - Support doctors in clinical decision-making.
           </p>
         </div>
         <div className="flex items-center justify-center">
@@ -44,11 +48,15 @@ const AboutPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-blue-800 dark:text-gray-300 leading-relaxed text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at orci enim. Etiam a lobortis nunc,
-            vel auctor lorem. Aliquam erat volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
-            facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue. Suspendisse auctor lacus in nulla fringilla
-            pulvinar. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id leo
-            at nulla aliquet luctus.
+            After the reasoning process, the AI communicates its diagnosis clearly to the user. It presents:
+            <br />
+            <br />
+            - A possible condition based on symptoms. <br />
+            - A confidence level or explanation. <br />
+            - Suggested next actions such as consulting a specialist or undergoing tests.
+            <br />
+            <br />
+            This approach improves trust in AI by making results easy to understand and useful for real medical decisions.
           </p>
         </div>
       </div>

@@ -18,45 +18,38 @@ const PrivacyPage: React.FC = () => {
           {/* Section 1 */}
           <div>
             <h3 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-3">
-              Security compliance &amp; accreditation
+              Security Compliance &amp; Accreditation
             </h3>
             <p className="text-sm leading-relaxed text-justify text-blue-800 dark:text-gray-300">
-              Quisque cursus nisi vel tempor sollicitudin. Praesent condimentum eget metus vitae aliquam. Vivamus
-              consectetur sapien at suscipit imperdiet. Cras suscipit varius eros, ac tempor metus mattis non. Nam
-              nisi lectus, sagittis non purus et, venenatis imperdiet tellus. Etiam hendrerit, ligula ac imperdiet
-              dignissim, libero metus cursus mauris, a pulvinar ligula quam et ex. Nullam et turpis consequat,
-              scelerisque erat at, suscipit ligula. Cras justo leo, tempus sit amet sem vitae, aliquam tincidunt
-              lectus. Mauris quis lacus lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-              quis urna ut mi pharetra facilisis. Etiam facilisis est id risus tristique, vel tempus elit posuere.
-              Maecenas faucibus lacus sed dolor ullamcorper tristique. Integer scelerisque sem a magna luctus, ut
-              vehicula nisl posuere. Donec vestibulum dictum felis, fermentum pellentesque ipsum rutrum tincidunt.
-              Curabitur feugiat felis non justo sodales, non hendrerit dolor auctor. Vestibulum lacinia.
+              Our system complies with modern standards of healthcare data security, including encrypted transmission, secure storage,
+              and strict access controls. The <strong>Expert System-Based Analysis of General Disease Symptoms</strong> is built to ensure
+              data integrity, confidentiality, and reliability for both patients and medical professionals. Regular audits and updates
+              are conducted to maintain security accreditation and compliance with health data regulations.
             </p>
           </div>
 
           {/* Section 2 */}
           <div>
             <h3 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-3">
-              Customer requirements
+              Customer Requirements
             </h3>
             <p className="text-sm leading-relaxed text-justify text-blue-800 dark:text-gray-300">
-              Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id leo at nulla
-              aliquet luctus. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum id
-              leo at nulla aliquet luctus.
+              We ensure a user-friendly experience for both patients and healthcare providers. The system supports intuitive symptom input,
+              accurate diagnostic feedback, and data access tailored to roles (e.g., doctor, admin). Users are expected to input real
+              information and follow ethical use guidelines. Healthcare institutions may request API access or data integration for extended services.
             </p>
           </div>
 
           {/* Section 3 */}
           <div className="mb-12">
             <h3 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-3">
-              Security &amp; privacy commitments
+              Security &amp; Privacy Commitments
             </h3>
             <p className="text-sm leading-relaxed text-justify text-blue-800 dark:text-gray-300">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at orci enim. Etiam a lobortis nunc, vel
-              auctor lorem. Aliquam erat volutpat. Fusce vel sollicitudin velit. Aliquam egestas quis metus a
-              facilisis. Aliquam erat volutpat. Ut nec sollicitudin augue. Suspendisse auctor lacus in nulla
-              fringilla pulvinar. Donec suscipit faucibus porttitor. Cras vehicula vel erat quis placerat. Vestibulum
-              id leo at nulla aliquet luctus.
+              Your data privacy is our top priority. All personal and symptom data is handled with strict confidentiality.
+              We do not share or sell user information to third parties. The expert system uses anonymized data to improve
+              diagnosis quality and system performance. We commit to transparency in how AI decisions are made and ensure
+              that users can access, update, or delete their information at any time.
             </p>
           </div>
         </div>
