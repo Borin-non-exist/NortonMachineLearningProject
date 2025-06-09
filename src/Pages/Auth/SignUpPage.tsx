@@ -1,7 +1,7 @@
-// src/pages/SignUpPage.tsx
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { auth, provider, signInWithPopup } from "../../lib/firebase";
 
 const SignUpPage: React.FC = () => {
@@ -67,16 +67,13 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-blue-50 dark:bg-gray-900 px-4 py-10 flex flex-col items-center justify-center relative transition-colors">
-      {/* Logo + Site Name */}
-      <div className="absolute top-4 left-6 flex items-center gap-2">
+      {/* Centered Logo */}
+      <div className="mb-6">
         <img
           src="/src/assets/logo.jpg"
           alt="Logo"
-          className="w-8 h-8 rounded-full border border-blue-200 dark:border-gray-600 transition-colors"
+          className="h-16 w-auto object-contain"
         />
-        <span className="text-lg font-semibold text-blue-600 dark:text-blue-300 transition-colors">
-          PiKrous
-        </span>
       </div>
 
       <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 text-blue-600 dark:text-blue-300 transition-colors">
@@ -239,7 +236,9 @@ const SignUpPage: React.FC = () => {
 
       {showAgreementError && (
         <div className="mt-4 bg-white dark:bg-gray-800 border border-blue-200 dark:border-gray-600 rounded-lg px-4 py-3 flex justify-between items-center w-full max-w-md shadow transition-colors">
-          <p className="text-sm font-medium text-red-600">You need to agree with Terms and Services</p>
+          <p className="text-sm font-medium text-black">
+            You need to agree with Terms and Services
+          </p>
           <button
             onClick={() => setShowAgreementError(false)}
             className="text-red-500 font-semibold text-sm hover:underline transition-colors"
@@ -248,6 +247,14 @@ const SignUpPage: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Back to Home Button */}
+      <Link
+        to="/"
+        className="mt-6 text-blue-600 dark:text-blue-300 hover:underline text-sm font-medium transition-colors"
+      >
+        ← Back to Home
+      </Link>
     </div>
   );
 };

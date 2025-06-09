@@ -1,70 +1,7 @@
 [
-  {
-    "label": "Hello Pikunus AI",
-    "date": "April 2023"
-  },
-  {
-    "label": "I have a headache. How do I fix it?",
-    "date": "March 2023"
-  },
-  {
-    "label": "How to prevent COVID-19?",
-    "date": "2024"
-  },
-  {
-    "label": "How to prevent COVID-19?",
-    "date": "2024"
-  },
-  {
-    "label": "Best diet for high blood pressure?",
-    "date": "May 2024"
-  },
-  {
-    "label": "What are symptoms of dengue?",
-    "date": "June 2024"
-  },
-  {
-    "label": "Can AI help diagnose skin conditions?",
-    "date": "July 2024"
-  },
-  {
-    "label": "How much water should I drink daily?",
-    "date": "August 2024"
-  },
-  {
-    "label": "What is the normal heart rate?",
-    "date": "September 2024"
-  },
-  {
-    "label": "I feel dizzy. What could be the reason?",
-    "date": "October 2024"
-  },
-  {
-    "label": "Is fever a symptom of flu or COVID-19?",
-    "date": "November 2024"
-  },
-  {
-    "label": "What should I do after a vaccine?",
-    "date": "December 2024"
-  },
-  {
-    "label": "How to improve mental health?",
-    "date": "January 2025"
-  },
-  {
-    "label": "Symptoms of food poisoning?",
-    "date": "February 2025"
-  },
-  {
-    "label": "What is Pikunus AI?",
-    "date": "March 2025"
-  },
-  {
-    "label": "How to treat a cold naturally?",
-    "date": "April 2025"
-  },
-  {
-    "label": "Tips to sleep better at night?",
-    "date": "May 2025"
-  }
+  { "id": 1, "label": "Hello Pikunus AI", "date": "April 2023", "details": "This is a sample description for Hello Pikunus AI." },
+  { "id": 2, "label": "I have a headache. How do I fix it?", "date": "March 2023", "details": "Drink water, rest, and see a doctor if severe." },
+  { "id": 3, "label": "How to prevent COVID-19?", "date": "2024", "details": "Wash hands, wear masks, stay safe." },
+  { "id": 4, "label": "Best diet for high blood pressure?", "date": "May 2024", "details": "Eat more vegetables, less salt, and avoid processed food." },
+  { "id": 5, "label": "What are symptoms of dengue?", "date": "June 2024", "details": "High fever, headache, joint pain, and rash." }
 ]
