@@ -1,0 +1,50 @@
+{
+  "summary": {
+    "totalPatients": {
+      "label": "Total Patients",
+      "value": 10000,
+      "percentage": "20.5%"
+    },
+    "totalDiseases": {
+      "label": "Total Disease Found",
+      "value": 250,
+      "percentage": "32.5%"
+    },
+    "totalDoctors": {
+      "label": "Total Numbers of Doctors",
+      "value": 25,
+      "percentage": "10.9%"
+    }
+  },
+  "diseaseSummaryByDay": [
+    { "day": "Mon", "value": 60 },
+    { "day": "Tue", "value": 80 },
+    { "day": "Wed", "value": 50 },
+    { "day": "Thu", "value": 95 },
+    { "day": "Fri", "value": 70 },
+    { "day": "Sat", "value": 80 },
+    { "day": "Sun", "value": 100 }
+  ],
+  "diseaseTypes": [
+    {
+      "name": "Cardiovascular Diseases",
+      "percentage": 25,
+      "color": "#4F46E5"
+    },
+    {
+      "name": "Respiratory Diseases",
+      "percentage": 40,
+      "color": "#10B981"
+    },
+    {
+      "name": "Diabetes",
+      "percentage": 25,
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Cancer",
+      "percentage": 10,
+      "color": "#8B5CF6"
+    }
+  ]
+}
