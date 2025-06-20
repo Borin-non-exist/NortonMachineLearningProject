@@ -48,7 +48,7 @@ const Sidebar: React.FC = () => {
               <span>Doctor</span>
             </Link>
 
-            <Link href="/disease" className={linkClasses("/disease-knowledge")}>
+            <Link href="/disease" className={linkClasses("/disease")}>
               <FaBookMedical className="text-lg" />
               <span>Disease Knowledge</span>
             </Link>
