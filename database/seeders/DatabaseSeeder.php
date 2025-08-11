@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        DB::table('users')->insert([
+            'user_name'   => 'Admin',
+            'date_of_birth'  => '2001-09-29', //yyyy-mm-dd format
+            'gender'      => 'male',
+            'role'        => 'admin',
+            'image'       => 'User.png', // Default image for admin
+            'email'       => 'admin@pikrus.com',
+            'password'    => Hash::make('Admin@1234'), // This is the actual password
+            'weight'      => '70',
+            'height'      => '170',
+            'created_at'  => now(),
+            'updated_at'  => now(),
         ]);
     }
 }

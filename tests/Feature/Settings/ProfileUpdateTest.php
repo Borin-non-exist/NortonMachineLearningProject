@@ -47,7 +47,7 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect('/settings/profile');
+        ->assertRedirect('/profile');
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });

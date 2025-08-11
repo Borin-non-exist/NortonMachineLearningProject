@@ -1,4 +1,4 @@
-how to run:
+# how to run:
 php artisan serve  and  npm run dev at the same time with the different terminal
 
 
@@ -19,3 +19,17 @@ npm install dayjs
 
 # Install recharts
 npm install recharts
+
+# Install laravel/breeze
+composer require laravel/breeze --dev
+php artisan breeze:install react
+
+# Intervention Image is the most popular image manipulation package for Laravel.
+composer require intervention/image
+
+
+#
+php artisan storage:link
+
+# Install react-select
+npm install react-select

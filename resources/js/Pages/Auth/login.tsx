@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import { router, usePage } from "@inertiajs/react";
+import { SharedData } from "@/types";
+
 
 const LoginPage: React.FC = () => {
+
+  const page = usePage<SharedData>();
+  const user = page.props.auth?.user;
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
@@ -27,7 +34,20 @@ const LoginPage: React.FC = () => {
     }
 
     if (isValid) {
-      console.log("Logging in with:", { email, password });
+      router.post('/login', {   // send POST request to login
+        email,
+        password,
+        remember: rememberMe,
+      }, {
+        onError: (errors) => {
+          // Show errors from Laravel if login fails
+          if (errors.email) setEmailError(errors.email);
+          else setEmailError("");
+
+          if (errors.password) setPasswordError(errors.password);
+          else setPasswordError("");
+        },
+      });
     }
   };
 
@@ -55,10 +75,10 @@ const LoginPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="bg-blue-50 dark:bg-gray-700 w-full px-4 py-2 border border-blue-200 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-blue-800 dark:text-gray-100 transition-colors"
+            className="bg-blue-50 dark:bg-gray-900 w-full px-4 py-2 border border-blue-200 dark:border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm text-blue-800 dark:text-gray-200 transition-colors"
           />
           {emailError && (
-            <p className="text-red-500 text-xs mt-1">{emailError}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs mt-1">{emailError}</p>
           )}
         </div>
 
@@ -70,33 +90,46 @@ const LoginPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="bg-blue-50 dark:bg-gray-700 w-full px-4 py-2 border border-blue-200 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-blue-800 dark:text-gray-100 pr-10 transition-colors"
+              className="bg-blue-50 dark:bg-gray-900 w-full px-4 py-2 border border-blue-200 dark:border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm text-blue-800 dark:text-gray-200 pr-10 transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-blue-600 dark:text-gray-200 transition-colors"
+              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-blue-600 dark:text-blue-300 transition-colors"
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEye /> : <FaEyeSlash />}
             </button>
           </div>
           {passwordError && (
-            <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs mt-1">{passwordError}</p>
           )}
+
+          {/* Remember me & Forgot password */}
+          <div className="flex items-center justify-between mt-2 text-sm">
+            <label className="flex items-center gap-2 text-blue-800 dark:text-gray-200">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="accent-blue-600 dark:accent-blue-400"
+              />
+              Remember me
+            </label>
+            <a
+              href="/forgot-password"
+              className="text-blue-600 dark:text-blue-300 hover:underline"
+            >
+              Forgot password?
+            </a>
+          </div>
         </div>
 
         {/* Login Button */}
         <button
           onClick={handleLogin}
-          className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow transition-colors"
+          className="w-full py-2 bg-blue-600 dark:bg-blue-900 hover:bg-blue-700 dark:hover:bg-blue-950 text-white font-semibold rounded shadow transition-colors"
         >
           Log In
-        </button>
-
-        {/* Google Button */}
-        <button className="w-full flex items-center justify-center gap-2 py-2 border border-blue-600 dark:border-gray-600 rounded bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 text-sm text-blue-600 dark:text-gray-100 transition-colors">
-          <FcGoogle className="text-lg" />
-          Log in with Google
         </button>
       </div>
     </div>

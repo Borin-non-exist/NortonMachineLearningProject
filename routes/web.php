@@ -1,110 +1,90 @@
 <?php
 
-// use Illuminate\Support\Facades\Route;
-//use Inertia\Inertia;
-
-// Route::get('/', function () {
-//     return Inertia::render('welcome');
-// })->name('home');
-
-// Route::middleware(['auth', 'verified'])->group(function () {
-//     Route::get('dashboard', function () {
-//         return Inertia::render('dashboard');
-//     })->name('dashboard');
-// });
-
-// require __DIR__.'/settings.php';
-// require __DIR__.'/auth.php';
-
-
-
-
-
-
-// use App\Http\Controllers\HomeController;
-// Route::get('/', [HomeController::class, 'index']);
-
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredDoctorController;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiseaseController;
+use App\Http\Controllers\Admin\SymptomController;
 
-/* Route::get('/', fn () => Inertia::render('HomePage/HomePage'))
-    ->name('home');
-Route::get('/about', fn () => Inertia::render('AboutUs/AboutUsPage'))
-    ->name('about');
-Route::get('/privacy', fn () => Inertia::render('PrivacyPage/PrivacyPage'))
-    ->name('privacy');
-Route::get('/signup', fn () => Inertia::render('Auth/SignUpPage'))
-    ->name('signup');
-Route::get('/login', fn () => Inertia::render('Auth/Login'))
-    ->name('login');
-Route::get('/chat', fn () => Inertia::render('ChatPage/ChatPage'))
-    ->name('chat'); */
-
+// Public routes
 
 Route::get('/', function () {
-    return Inertia::render('Home');
+    return Inertia::render('Home', [
+        'canLogin'      => Route::has('login'),
+        'canRegister'   => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion'    => PHP_VERSION,
+    ]);
 })->name('home');
 
-Route::get('/login', function () {
-    return Inertia::render('Auth/login');
-})->name('login');
+Route::get('/welcome', fn() => Inertia::render('WelcomePage/WelcomePage'))->name('welcome');
 
-Route::get('/signup', function () {
-    return Inertia::render('Auth/SignUpPage');
-})->name('signup');
-Route::get('/about', function () {
-    return Inertia::render('AboutAI/AboutAIPage');
-})->name('about');
+// If you want to enable About/Privacy/AboutUs, uncomment and point to your React pages
+/*
+Route::get('/about', fn() => Inertia::render('AboutAI/AboutAIPage'))->name('about');
+Route::get('/privacy', fn() => Inertia::render('PrivacyPage/PrivacyPage'))->name('privacy');
+Route::get('/aboutus', fn() => Inertia::render('AboutUs/AboutUsPage'))->name('aboutus');
+*/
 
-Route::get('/privacy', function () {
-    return Inertia::render('PrivacyPage/PrivacyPage');
-})->name('privacy');
+// Auth routes (from Breeze)
+require __DIR__ . '/auth.php';
 
-Route::get('/chat', function () {
-    return Inertia::render('ChatPage/ChatPage');
-})->name('chat');
+// Profile routes (standard user profile edit/update/delete)
+/* Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+}); */
 
-Route::get('/welcome', function () {
-    return Inertia::render('WelcomePage/WelcomePage');
-})->name('welcome');
+// Settings routes (for profile and password update, using ProfileController)
+
+Route::middleware('auth')->group(function () {
+    Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('settings.profile.edit');
+    Route::post('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
+    
+    // Password update route
+    Route::post('/settings/password', [ProfileController::class, 'updatePassword'])->name('settings.password.update');
+});
+
+// Redirect user by role after login
+Route::middleware('auth')->get('/redirect-by-role', function () {
+    $role = Auth::user()?->role;
+    return match ($role) {
+        'admin'  => redirect('/dashboard'),
+        'doctor' => redirect('/dashboarddoctor'),
+        default  => redirect('/'),
+    };
+})->name('redirect.by.role');
 
 
-Route::get('/setting', function () {
-    return Inertia::render('SettingPage/SettingPage');
-})->name('setting');
 
-Route::get('/terms-policy', function () {
-    return Inertia::render('TermsPolicyPage/TermsPolicyPage');
-})->name('terms-policy');
+//    ROLE-BASED ROUTES
 
-Route::get('/how-to-use', function () {
-    return Inertia::render('how-to-use/how-to-use');
-})->name('how-to-use');
+// Admin-only routes
+Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/listdoctor', [RegisteredDoctorController::class, 'index'])->name('listdoctor.index');
+    Route::post('/listdoctor', [RegisteredDoctorController::class, 'store'])->name('listdoctor.store');
+    // Fixed: use 'edit' method so React page receives user info!
+    Route::get('/settingadmin', [ProfileController::class, 'edit'])->name('settingadmin');
+});
 
-Route::get('/disease', function () {
-    return Inertia::render('AdminPage/KnowledgePage/DiseaseKnowledgePage');
-})->name('disease');
+// Doctor-only routes
+Route::middleware(['auth', RoleMiddleware::class . ':doctor'])->group(function () {
+    Route::get('/dashboarddoctor', fn() => Inertia::render('DoctorPage/DashboardDoctor'))->name('dashboarddoctor');
+    Route::get('/settingdoctor', fn() => Inertia::render('SettingPage/SettingDoctorPage'))->name('settingdoctor');
+});
 
-Route::get('/doctorlogin', function () {
-    return Inertia::render('Auth/login_doctor');
-})->name('doctorlogin');
-
-Route::get('/adminlogin', function () {
-    return Inertia::render('Auth/login_admin');
-})->name('adminlogin');
-
-Route::get('/settingdoctor', function () {
-    return Inertia::render('SettingPage/SettingdoctorPage');
-})->name('settingdoctor');
-
-Route::get('/settingadmin', function () {
-    return Inertia::render('SettingPage/SettingAdminPage');
-})->name('settingadmin');
-
-Route::get('/dashboard', function () {
-    return Inertia::render('AdminPage/Dashboarddoctor/DashboardAdmin');
-})->name('dashboard');
-
-Route::get('/doctorprofile', function () {
-    return Inertia::render('AdminPage/DoctorPage/ListDoctor');
-})->name('doctorprofile');
+// Admin & Doctor shared routes
+Route::middleware(['auth', RoleMiddleware::class . ':admin,doctor'])->group(function () {
+    Route::get('/diseases', [DiseaseController::class, 'index'])->name('diseases.index');
+    Route::post('/diseases', [DiseaseController::class, 'store']);
+    Route::post('/symptoms', [SymptomController::class, 'store']);
+    Route::get('/symptoms', [SymptomController::class, 'index'])->name('symptoms.index');
+});

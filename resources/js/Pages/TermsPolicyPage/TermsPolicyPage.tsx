@@ -4,7 +4,7 @@ import { FaArrowLeft } from 'react-icons/fa';
 
 export default function TermsPolicyPage(){
   return (
-    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors px-4 py-10 flex flex-col items-center">
+    <div className="min-h-screen bg-blue-50 text-gray-800 transition-colors px-4 py-10 flex flex-col items-center">
       {/* Logo */}
       <div className="mb-6">
         <img
@@ -15,14 +15,14 @@ export default function TermsPolicyPage(){
       </div>
 
       {/* Page Title */}
-      <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-300 mb-6 text-center transition-colors">
+      <h1 className="text-3xl font-bold text-blue-600 mb-6 text-center transition-colors">
         Terms and Privacy Policy
       </h1>
 
       {/* Content */}
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md border border-blue-100 dark:border-gray-700 space-y-6 text-sm sm:text-base leading-relaxed transition-colors">
+      <div className="w-full max-w-2xl bg-white rounded-lg p-6 shadow-md border border-blue-100 space-y-6 text-sm sm:text-base leading-relaxed transition-colors">
         <section>
-          <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-300 mb-2 transition-colors">
+          <h2 className="text-lg font-semibold text-blue-600 mb-2 transition-colors">
             Terms of Service
           </h2>
           <p>
@@ -34,7 +34,7 @@ export default function TermsPolicyPage(){
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-300 mb-2 transition-colors">
+          <h2 className="text-lg font-semibold text-blue-600 mb-2 transition-colors">
             Privacy Policy
           </h2>
           <p>
@@ -46,14 +46,14 @@ export default function TermsPolicyPage(){
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-300 mb-2 transition-colors">
+          <h2 className="text-lg font-semibold text-blue-600 mb-2 transition-colors">
             Your Responsibilities
           </h2>
           <p>
             You are responsible for maintaining the confidentiality of your account and password. Please notify us immediately if you suspect any unauthorized use of your account.
           </p>
           <p>
-            If you have any questions or concerns about these terms or our privacy practices, please contact us at <span className="text-blue-600 dark:text-blue-300 underline">support@example.com</span>.
+            If you have any questions or concerns about these terms or our privacy practices, please contact us at <span className="text-blue-600 underline">support@example.com</span>.
           </p>
         </section>
       </div>
@@ -61,7 +61,7 @@ export default function TermsPolicyPage(){
       {/* Back to Home Button */}
       <Link
         href="/"
-        className="mt-8 inline-flex items-center gap-2 text-blue-600 dark:text-blue-300 hover:underline text-sm font-medium transition-colors"
+        className="mt-8 inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium transition-colors"
       >
         <FaArrowLeft /> Back
       </Link>

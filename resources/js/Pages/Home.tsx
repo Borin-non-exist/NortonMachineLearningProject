@@ -7,18 +7,18 @@ import AboutUs from "./AboutUs/AboutUsPage";
 
 export default function Home(){
   return(
-    <div className="min-h-screen bg-[#EEF6FE] font-sans text-black relative dark:bg-gray-900">
+    <div className="min-h-screen bg-[#EEF6FE] font-sans text-black relative dark:bg-gray-900 dark:text-white">
       <Navbar />
       <section id="home">
         <HomePage />
       </section>
-      <section id="about">
+      <section id="purpose">
         <AboutPage />
       </section>
       <section id="privacy">
         <PrivacyPage />
       </section>
-      <section>
+      <section id="about">
         < AboutUs/>
       </section>
     </div>

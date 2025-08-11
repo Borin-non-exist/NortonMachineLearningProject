@@ -3,7 +3,7 @@ import React from "react";
 const AboutUs: React.FC = () => (
   <div className="min-h-screen bg-[#EEF6FE] dark:bg-gray-900 transition-colors">
     <main className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="text-5xl font-bold text-center text-blue-600 dark:text-blue-300 mb-12">
+      <h1 className="text-5xl font-bold text-center text-blue-600 dark:text-blue-400 mb-12">
         About Us
       </h1>
 
@@ -14,7 +14,7 @@ const AboutUs: React.FC = () => (
             <h2 className="text-xl font-semibold text-blue-600 dark:text-blue-300 mb-2">
               Our Mission
             </h2>
-            <p className="text-blue-800 dark:text-gray-300 leading-relaxed">
+            <p className="text-blue-800 dark:text-gray-200 leading-relaxed">
               At Norton University, our mission is to cultivate a new generation
               of leaders, innovators, and responsible global citizens through
               excellence in education, research, and community engagement. We
@@ -33,7 +33,7 @@ const AboutUs: React.FC = () => (
             <h2 className="text-xl font-semibold text-blue-600 dark:text-blue-300 mb-2">
               Our Vision
             </h2>
-            <p className="text-blue-800 dark:text-gray-300 leading-relaxed">
+            <p className="text-blue-800 dark:text-gray-200 leading-relaxed">
               Norton University envisions becoming a leading center of
               excellence in higher education and research in Cambodia and the
               region. We aspire to shape future-ready graduates who are
@@ -60,7 +60,7 @@ const AboutUs: React.FC = () => (
             <h2 className="text-xl font-semibold text-blue-600 dark:text-blue-300 mb-2">
               Our Team
             </h2>
-            <p className="text-blue-800 dark:text-gray-300 leading-relaxed">
+            <p className="text-blue-800 dark:text-gray-200 leading-relaxed">
               At Norton University, our team is composed of dedicated educators,
               researchers, administrators, and support staff who share a common
               commitment to academic excellence and student success. Our faculty
