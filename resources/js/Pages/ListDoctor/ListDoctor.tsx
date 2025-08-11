@@ -345,30 +345,6 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                   <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required />
 
                   {/* Password Field */}
-                  {/* <div className="relative mb-4">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      id="password"
-                      placeholder="Password"
-                      value={form.password}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 dark:text-gray-200 p-1 rounded-full focus:outline-none"
-                      //tabIndex={-1}
-                      //aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
-                    </button>
-                    {errors.password && (
-                      <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                    )}
-                  </div> */}
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -378,6 +354,7 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                       value={form.password}
                       onChange={handleChange}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                      required
                     />
                     <button
                       type="button"
@@ -405,6 +382,7 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                       value={form.password_confirmation}
                       onChange={handleChange}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                      required
                     />
                     <button
                       type="button"
@@ -417,10 +395,6 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                       <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password_confirmation}</p>
                     )}
                   </div>
-
-
-                  {/* <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:bg-gray-900 dark:text-gray-200" required />
-                  <input name="password_confirmation" type="password" placeholder="Confirm Password" value={form.password_confirmation} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:bg-gray-900 dark:text-gray-200" required /> */}
                 </div>
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-32 h-32 border border-gray-300 dark:border-gray-600 rounded-full overflow-hidden flex items-center justify-center">
