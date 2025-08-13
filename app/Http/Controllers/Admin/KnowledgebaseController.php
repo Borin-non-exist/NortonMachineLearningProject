@@ -9,6 +9,7 @@ use App\Models\Disease;
 use App\Models\Symptom;
 use App\Models\Treatment;
 use App\Models\Priorillness;
+use Illuminate\Support\Facades\Log;
 
 class KnowledgebaseController extends Controller
 {
@@ -28,6 +29,15 @@ class KnowledgebaseController extends Controller
         $symptoms = Symptom::all();
         $treatments = Treatment::all();
         $priorillnesses = Priorillness::all();
+
+        Log::info('DEBUG priorillnesses count: ' . $priorillnesses->count());
+        Log::info('DEBUG inertia props:', [
+            'knowledgebases' => $knowledgebases->count(),
+            'diseases' => $diseases->count(),
+            'symptoms' => $symptoms->count(),
+            'treatments' => $treatments->count(),
+            'priorillnesses' => $priorillnesses->count(),
+        ]);
 
         return inertia('ListDisease/ListDisease', [
             'knowledgebases' => $knowledgebases,
@@ -49,11 +59,12 @@ class KnowledgebaseController extends Controller
             'disease_type' => 'required|string',
             // Symptom(s)
             'symptom_ids' => 'required|array',
-            'symptom_ids.*' => 'exists:symptoms,symptom_id',
+            'symptom_ids.*' => 'exists:symptoms,id',
             // Treatment
             'treatment_description' => 'required|string',
             // Priorillness
-            'priorillness_id' => 'required|exists:priorillnesses,id',
+            'priorillness_ids' => 'required|array',
+            'priorillness_ids.*' => 'exists:priorillnesses,id',
         ]);
 
         // Create or get Disease
@@ -67,14 +78,16 @@ class KnowledgebaseController extends Controller
             ['description' => $data['treatment_description']]
         );
 
-        // For each symptom, create a knowledgebase entry
+        // For each combination of symptom and priorillness, create a knowledgebase entry
         foreach ($data['symptom_ids'] as $symptom_id) {
-            Knowledgebase::create([
-                'disease_id' => $disease->id,
-                'symptom_id' => $symptom_id,
-                'treatment_id' => $treatment->id,
-                'priorillness_id' => $data['priorillness_id'],
-            ]);
+            foreach ($data['priorillness_ids'] as $priorillness_id) {
+                Knowledgebase::create([
+                    'disease_id' => $disease->id,
+                    'symptom_id' => $symptom_id,
+                    'treatment_id' => $treatment->id,
+                    'priorillness_id' => $priorillness_id,
+                ]);
+            }
         }
 
         return redirect()->route('knowledgebases.index')->with('success', 'Knowledgebase created successfully');

@@ -44,6 +44,7 @@ type PageProps = {
 
 const KnowledgebasePage: React.FC = () => {
     const { props } = usePage() as { props: PageProps };
+    console.log("DEBUG ALL PROPS:", props);
     const [search, setSearch] = useState<string>("");
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const isDarkMode = document.documentElement.classList.contains("dark");
@@ -64,12 +65,12 @@ const KnowledgebasePage: React.FC = () => {
     const [selectedSymptoms, setSelectedSymptoms] = useState<MultiValue<{ value: number; label: string }>>([]);
 
     const [treatmentDescription, setTreatmentDescription] = useState<string>("");
-    const [selectedPriorillness, setSelectedPriorillness] = useState<SingleValue<{ value: number; label: string }> | null>(null);
+    const [selectedPriorillnesses, setSelectedPriorillnesses] = useState<MultiValue<{ value: number; label: string }>>([]);
     const [newPriorillnessName, setNewPriorillnessName] = useState<string>("");
 
     // For add new symptom inline
     const [symptomOptions, setSymptomOptions] = useState<{ value: number; label: string }[]>(
-        symptoms.map(s => ({ value: s.symptom_id, label: s.name }))
+        symptoms.map(s => ({ value: Number(s.symptom_id), label: s.name }))
     );
 
     // Disease type options
@@ -80,7 +81,7 @@ const KnowledgebasePage: React.FC = () => {
 
     // For priorillness select
     const priorillnessOptions = priorillnesses.map(p => ({
-        value: p.id,
+        value: Number(p.id),
         label: p.priorillness_name
     }));
 
@@ -112,7 +113,7 @@ const KnowledgebasePage: React.FC = () => {
                 const newPriorillness = page.props?.priorillness || null;
                 if (newPriorillness) {
                     setPriorillnesses((prev) => [...prev, newPriorillness]);
-                    setSelectedPriorillness({ value: newPriorillness.id, label: newPriorillness.priorillness_name });
+                    setSelectedPriorillnesses((prev) => [...prev, { value: Number(newPriorillness.id), label: newPriorillness.priorillness_name }]);
                 }
                 setNewPriorillnessName("");
             }
@@ -133,8 +134,8 @@ const KnowledgebasePage: React.FC = () => {
             onSuccess: (page: any) => {
                 const newSymptom = page.props?.symptom || null;
                 if (newSymptom) {
-                    setSymptomOptions((opts) => [...opts, { value: newSymptom.symptom_id, label: newSymptom.name }]);
-                    setSelectedSymptoms((syms) => [...syms, { value: newSymptom.symptom_id, label: newSymptom.name }]);
+                    setSymptomOptions((opts) => [...opts, { value: Number(newSymptom.symptom_id), label: newSymptom.name }]);
+                    setSelectedSymptoms((syms) => [...syms, { value: Number(newSymptom.symptom_id), label: newSymptom.name }]);
                 }
                 setNewSymptomName("");
             }
@@ -147,21 +148,21 @@ const KnowledgebasePage: React.FC = () => {
         let disease_type = newDiseaseType;
         let symptom_ids = selectedSymptoms.map(s => s.value);
         let treatment_description = treatmentDescription.trim();
-        let priorillness_id = selectedPriorillness?.value ?? null;
-
+        let priorillness_ids = selectedPriorillnesses.map(p => p.value);
+    
         // Validation
-        if (!disease_name || !disease_type || symptom_ids.length === 0 || !treatment_description || !priorillness_id) {
+        if (!disease_name || !disease_type || symptom_ids.length === 0 || !treatment_description || priorillness_ids.length === 0) {
             alert("Please fill all required fields.");
             return;
         }
-
+    
         // Post to /knowledgebases
         router.post('/knowledgebases', {
             disease_name,
             disease_type,
             symptom_ids,
             treatment_description,
-            priorillness_id,
+            priorillness_ids,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -170,7 +171,7 @@ const KnowledgebasePage: React.FC = () => {
                 setNewDiseaseType("airway");
                 setSelectedSymptoms([]);
                 setTreatmentDescription("");
-                setSelectedPriorillness(null);
+                setSelectedPriorillnesses([]);
                 router.get('/knowledgebases', {}, { preserveState: true });
             },
             onError: (errors) => {
@@ -181,12 +182,13 @@ const KnowledgebasePage: React.FC = () => {
 
     // Modal open
     const openAddModal = () => {
+        console.log("DEBUG priorillnesses prop:", props.priorillnesses);
         setIsModalOpen(true);
         setNewDiseaseName("");
         setNewDiseaseType("airway");
         setSelectedSymptoms([]);
         setTreatmentDescription("");
-        setSelectedPriorillness(null);
+        setSelectedPriorillnesses([]);
         setNewSymptomName("");
     };
 
@@ -355,9 +357,8 @@ const KnowledgebasePage: React.FC = () => {
                                             options={symptomOptions}
                                             value={selectedSymptoms}
                                             onChange={setSelectedSymptoms}
-                                            inputId="symptom-select"
-                                            instanceId="symptom-select-instance"
                                             isSearchable
+                                            menuPortalTarget={null}
                                             styles={{
                                                 control: (base, state) => ({
                                                     ...base,
@@ -391,15 +392,15 @@ const KnowledgebasePage: React.FC = () => {
                                                 multiValue: (base) => ({
                                                     ...base,
                                                     backgroundColor: isDarkMode ? "#1e293b" : "#dbeafe",
-                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
                                                 }),
                                                 multiValueLabel: (base) => ({
                                                     ...base,
-                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
                                                 }),
                                                 multiValueRemove: (base) => ({
                                                     ...base,
-                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
                                                     ':hover': {
                                                         backgroundColor: "#2563eb",
                                                         color: "white",
@@ -442,12 +443,13 @@ const KnowledgebasePage: React.FC = () => {
                                             <button onClick={addNewPriorillness} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Add</button>
                                         </div>
                                         <Select
+                                            isMulti
                                             options={priorillnessOptions}
-                                            value={selectedPriorillness}
-                                            onChange={setSelectedPriorillness}
-                                            isClearable
+                                            value={selectedPriorillnesses}
+                                            onChange={setSelectedPriorillnesses}
                                             isSearchable
-                                            placeholder="Select prior illness..."
+                                            menuPortalTarget={null}
+                                            placeholder="Select prior illness(es)..."
                                             styles={{
                                                 control: (base, state) => ({
                                                     ...base,
@@ -477,6 +479,23 @@ const KnowledgebasePage: React.FC = () => {
                                                     ...base,
                                                     backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
                                                     color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#1e293b" : "#dbeafe",
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                    ':hover': {
+                                                        backgroundColor: "#2563eb",
+                                                        color: "white",
+                                                    },
                                                 }),
                                             }}
                                             theme={(theme) => ({

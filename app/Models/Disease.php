@@ -19,7 +19,7 @@ class Disease extends Model
     {
         return $this->belongsToMany(
             Symptom::class,
-            'Diagnosis_Symptoms',
+            'diagnosis_symptoms',
             'diagnosis_id', // Foreign key on the pivot table for Disease
             'symptom_id'    // Foreign key on the pivot table for Symptom
         );

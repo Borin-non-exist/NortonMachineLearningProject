@@ -18,6 +18,8 @@ class DiseaseController extends Controller
         return Inertia::render('ListDisease/ListDisease', [
             'symptoms' => Symptom::all(),
             'diseases' => Disease::with('symptoms')->get(),
+            'priorillnesses' => \App\Models\Priorillness::all(),
+            'treatments' => \App\Models\Treatment::all(),
         ]);
     }
 
