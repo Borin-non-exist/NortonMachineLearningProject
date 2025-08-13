@@ -359,11 +359,11 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-5 -translate-y-1/2 text-blue-600 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                      className="absolute right-3 top-5 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
                     >
                       {showPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
                     </button>
-                    <p className="text-xs text-blue-600 dark:text-gray-200 pt-1">
+                    <p className="text-xs dark:text-gray-200 pt-1">
                       Must be 8+ characters with number, symbol, upper and lower case.
                     </p>
                     {errors.password && (
@@ -387,7 +387,7 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                     <button
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                      className="absolute right-3 top-1/2 -translate-y-1/2  dark:text-gray-200 p-1 rounded-full focus:outline-none"
                     >
                       {showConfirm ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
                     </button>

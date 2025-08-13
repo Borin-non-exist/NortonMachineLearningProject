@@ -1,7 +1,9 @@
 # how to run:
-php artisan serve  and  npm run dev at the same time with the different terminal
+php artisan serve  and  npm run dev
+//at the same time with the different terminal
 
-
+# install all vendor
+composer install
 
 ## Features
 

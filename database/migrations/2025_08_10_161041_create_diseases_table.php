@@ -13,8 +13,9 @@ return new class extends Migration
         Schema::create('diseases', function (Blueprint $table) {
             $table->id();
             $table->string('diseases_name')->unique();
-            $table->string('type');
+            $table->enum('type',['airway','stomach']);
             $table->text('description');
+            $table->timestamps();  //write pin ng vea ng create coloumns (created_at, updated_at)
         });
     }
 

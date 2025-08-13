@@ -8,7 +8,7 @@ import { router, usePage } from '@inertiajs/react';
 interface Disease {
     name: string;
     description: string;
-    confidenceScore: number;
+    
     symptoms: number[]; // <-- Use array of IDs, not strings
     treatment: string;
     type: string;
@@ -19,12 +19,22 @@ interface SymptomOption {
     label: string; // name
 }
 
+type Prediction = {
+  confidenceScore: number;
+};
+
+type PageProps = {
+  diseases: Disease[];
+};
+
 const DiseaseKnowledgePage: React.FC = () => {
     const { props } = usePage();
     const initialDiseases = (props.diseases as any[]) || [];
     const initialSymptoms = (props.symptoms as any[]) || [];
     const [search, setSearch] = useState<string>("");
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+    // Detect dark mode from Tailwind's class
+    const isDarkMode = document.documentElement.classList.contains("dark");
     const [diseases, setDiseases] = useState<Disease[]>(initialDiseases.map(d => ({
         ...d,
         symptoms: d.symptoms ? d.symptoms.map((s: any) => s.symptom_id) : [],
@@ -319,8 +329,8 @@ const DiseaseKnowledgePage: React.FC = () => {
 
                                     {/* Multi-select dropdown */}
                                     <div className="col-span-2">
-                                        <label className="block mb-1 text-blue-700 dark:text-blue-300">Symptoms</label>
-                                        <Select<SymptomOption, true>
+                                        <label className="block mb-1 text-blue-700 dark:-blue-300">Symptoms</label>
+                                        {/* <Select<SymptomOption, true>
                                             isMulti
                                             options={symptomOptions}
                                             value={symptomOptions.filter(o => newDisease.symptoms.includes(o.value))}
@@ -366,7 +376,77 @@ const DiseaseKnowledgePage: React.FC = () => {
                                                     primary: "#2563eb",
                                                 },
                                             })}
+                                        /> */}
+                                        
+
+                                        <Select<SymptomOption, true>
+                                            isMulti
+                                            options={symptomOptions}
+                                            value={symptomOptions.filter(o => newDisease.symptoms.includes(o.value))}
+                                            onChange={onSymptomsChange}
+                                            inputId="symptom-select"
+                                            instanceId="symptom-select-instance"
+                                            styles={{
+                                                control: (base, state) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode
+                                                        ? state.isFocused
+                                                            ? "#1e293b" // slate-800
+                                                            : "#0f172a" // slate-900
+                                                        : state.isFocused
+                                                            ? "#e0e7ff" // indigo-100
+                                                            : "#f0f6ff", // light bluish
+                                                    borderColor: isDarkMode
+                                                        ? state.isFocused
+                                                            ? "#3b82f6" // blue-500
+                                                            : "#475569" // slate-600
+                                                        : state.isFocused
+                                                            ? "#2563eb" // blue-600
+                                                            : "#bfdbfe", // blue-200
+                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a", // text color
+                                                    boxShadow: state.isFocused
+                                                        ? isDarkMode
+                                                            ? "0 0 0 2px rgba(59,130,246,0.3)"
+                                                            : "0 0 0 2px rgba(37,99,235,0.2)"
+                                                        : undefined,
+                                                    minHeight: 44,
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
+                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#1e293b" : "#dbeafe",
+                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#93c5fd" : "#1e40af",
+                                                    ':hover': {
+                                                        backgroundColor: "#2563eb",
+                                                        color: "white",
+                                                    },
+                                                }),
+                                            }}
+                                            theme={(theme) => ({
+                                                ...theme,
+                                                borderRadius: 8,
+                                                colors: {
+                                                    ...theme.colors,
+                                                    primary25: isDarkMode ? "#1e293b" : "#dbeafe",
+                                                    primary: "#2563eb",
+                                                },
+                                            })}
                                         />
+
+
+
                                     </div>
 
                                     <textarea placeholder="Treatment" value={newDisease.treatment} onChange={e => setNewDisease({ ...newDisease, treatment: e.target.value })} rows={2} className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 col-span-2" />

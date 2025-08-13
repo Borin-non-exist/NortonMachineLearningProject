@@ -20,7 +20,8 @@ class SymptomController extends Controller
         ]);
         $symptom = Symptom::create(['name' => $request->name]);
         //return response()->json($symptom);
-        return redirect()->route('symptoms.index')
-            ->with('success', 'Symptom created successfully!');
+        return back()->with([
+            'symptom' => $symptom,
+        ]);
     }
 }
