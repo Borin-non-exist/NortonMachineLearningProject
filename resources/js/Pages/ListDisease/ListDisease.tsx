@@ -12,7 +12,7 @@ interface Disease {
 }
 
 interface Symptom {
-    symptom_id: number;
+    id: number;
     name: string;
 }
 
@@ -56,22 +56,37 @@ const KnowledgebasePage: React.FC = () => {
     const [treatments, setTreatments] = useState<Treatment[]>(props.treatments || []);
     const [priorillnesses, setPriorillnesses] = useState<Priorillness[]>(props.priorillnesses || []);
 
+
+    // Sync symptoms state with props.symptoms when props change
+    useEffect(() => {
+        setSymptoms(props.symptoms || []);
+    }, [props.symptoms]);
+
+    // Sync priorillnesses state with props.priorillnesses when props change
+    useEffect(() => {
+        setPriorillnesses(props.priorillnesses || []);
+    }, [props.priorillnesses]);
+
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [newDiseaseName, setNewDiseaseName] = useState<string>("");
     const [newDiseaseType, setNewDiseaseType] = useState<string>("airway"); // default to first option
 
-    const [newSymptomName, setNewSymptomName] = useState<string>("");
+    // Store selected symptoms as option objects
     const [selectedSymptoms, setSelectedSymptoms] = useState<MultiValue<{ value: number; label: string }>>([]);
+    const [newSymptomName, setNewSymptomName] = useState<string>("");
+
+    // DEBUG: Log selectedSymptoms on every render
+    // Remove this after debugging
+    /* useEffect(() => {
+        console.log("DEBUG selectedSymptoms", selectedSymptoms);
+    }, [selectedSymptoms]); */
 
     const [treatmentDescription, setTreatmentDescription] = useState<string>("");
     const [selectedPriorillnesses, setSelectedPriorillnesses] = useState<MultiValue<{ value: number; label: string }>>([]);
     const [newPriorillnessName, setNewPriorillnessName] = useState<string>("");
 
-    // For add new symptom inline
-    const [symptomOptions, setSymptomOptions] = useState<{ value: number; label: string }[]>(
-        symptoms.map(s => ({ value: Number(s.symptom_id), label: s.name }))
-    );
+
 
     // Disease type options
     const diseaseTypeOptions = [
@@ -79,11 +94,38 @@ const KnowledgebasePage: React.FC = () => {
         { value: "stomach", label: "stomach" }
     ];
 
+    // For symptom select
+    /* const symptomOptions = React.useMemo(
+        () => symptoms.map(s => ({ value: Number(s.symptom_id), label: s.name })),
+        [symptoms]
+    ); */
+    const [symptomOptions, setSymptomsOptions] = useState<{ value: number; label: string }[]>(
+        symptoms.map(s => ({
+            value: Number(s.id),
+            label: s.name
+        })));
+    // Rebuild symptomOptions when symptoms change
+    useEffect(() => {
+        setSymptomsOptions(symptoms.map(s => ({
+            value: Number(s.id),
+            label: s.name
+        })));
+    }, [symptoms]);
+
     // For priorillness select
-    const priorillnessOptions = priorillnesses.map(p => ({
-        value: Number(p.id),
-        label: p.priorillness_name
-    }));
+    const [priorillnessOptions, setPriorillnessOptions] = useState<{ value: number; label: string }[]>(
+        priorillnesses.map(p => ({
+            value: Number(p.id),
+            label: p.priorillness_name
+        }))
+    );
+    // Rebuild priorillnessOptions when priorillnesses change
+    useEffect(() => {
+        setPriorillnessOptions(priorillnesses.map(p => ({
+            value: Number(p.id),
+            label: p.priorillness_name
+        })));
+    }, [priorillnesses]);
 
     // For treatment select (not used for add, only for display)
     const treatmentOptions = treatments.map(t => ({
@@ -109,13 +151,15 @@ const KnowledgebasePage: React.FC = () => {
         }
         router.post('/priorillnesses', { priorillness_name: trimmed }, {
             preserveScroll: true,
-            onSuccess: (page: any) => {
-                const newPriorillness = page.props?.priorillness || null;
-                if (newPriorillness) {
-                    setPriorillnesses((prev) => [...prev, newPriorillness]);
-                    setSelectedPriorillnesses((prev) => [...prev, { value: Number(newPriorillness.id), label: newPriorillness.priorillness_name }]);
-                }
-                setNewPriorillnessName("");
+            onSuccess: () => {
+                // Reload the current Inertia page to update all props (including priorillnesses)
+                router.get(window.location.pathname, {}, {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: (page: any) => {
+                        setNewPriorillnessName("");
+                    }
+                });
             }
         });
     };
@@ -131,13 +175,15 @@ const KnowledgebasePage: React.FC = () => {
         // Post new symptom to backend
         router.post('/symptoms', { name: trimmed }, {
             preserveScroll: true,
-            onSuccess: (page: any) => {
-                const newSymptom = page.props?.symptom || null;
-                if (newSymptom) {
-                    setSymptomOptions((opts) => [...opts, { value: Number(newSymptom.symptom_id), label: newSymptom.name }]);
-                    setSelectedSymptoms((syms) => [...syms, { value: Number(newSymptom.symptom_id), label: newSymptom.name }]);
-                }
-                setNewSymptomName("");
+            onSuccess: () => {
+                // Reload the current Inertia page to update all props (including symptoms)
+                router.get(window.location.pathname, {}, {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: (page: any) => {
+                        setNewSymptomName("");
+                    }
+                });
             }
         });
     };
@@ -149,13 +195,13 @@ const KnowledgebasePage: React.FC = () => {
         let symptom_ids = selectedSymptoms.map(s => s.value);
         let treatment_description = treatmentDescription.trim();
         let priorillness_ids = selectedPriorillnesses.map(p => p.value);
-    
+
         // Validation
         if (!disease_name || !disease_type || symptom_ids.length === 0 || !treatment_description || priorillness_ids.length === 0) {
             alert("Please fill all required fields.");
             return;
         }
-    
+
         // Post to /knowledgebases
         router.post('/knowledgebases', {
             disease_name,
@@ -345,7 +391,7 @@ const KnowledgebasePage: React.FC = () => {
                                         <div className="flex gap-2 mb-2">
                                             <input
                                                 type="text"
-                                                placeholder="New symptom..."
+                                                placeholder="New prior illness..."
                                                 value={newSymptomName}
                                                 onChange={e => setNewSymptomName(e.target.value)}
                                                 className="flex-1 border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800"
@@ -356,9 +402,89 @@ const KnowledgebasePage: React.FC = () => {
                                             isMulti
                                             options={symptomOptions}
                                             value={selectedSymptoms}
-                                            onChange={setSelectedSymptoms}
+                                            onChange={val => setSelectedSymptoms(val ? val : [])}
                                             isSearchable
-                                            menuPortalTarget={null}
+                                            placeholder="Select symptoms..."
+                                            styles={{
+                                                control: (base, state) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode
+                                                        ? state.isFocused
+                                                            ? "#1e293b"
+                                                            : "#0f172a"
+                                                        : state.isFocused
+                                                            ? "#e0e7ff"
+                                                            : "#f0f6ff",
+                                                    borderColor: isDarkMode
+                                                        ? state.isFocused
+                                                            ? "#3b82f6"
+                                                            : "#475569"
+                                                        : state.isFocused
+                                                            ? "#2563eb"
+                                                            : "#bfdbfe",
+                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                                    boxShadow: state.isFocused
+                                                        ? isDarkMode
+                                                            ? "0 0 0 2px rgba(59,130,246,0.3)"
+                                                            : "0 0 0 2px rgba(37,99,235,0.2)"
+                                                        : undefined,
+                                                    minHeight: 44,
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
+                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: isDarkMode ? "#1e293b" : "#dbeafe",
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: isDarkMode ? "#fff" : "#1e40af",
+                                                    ':hover': {
+                                                        backgroundColor: "#2563eb",
+                                                        color: "white",
+                                                    },
+                                                }),
+                                            }}
+                                            theme={(theme) => ({
+                                                ...theme,
+                                                borderRadius: 8,
+                                                colors: {
+                                                    ...theme.colors,
+                                                    primary25: isDarkMode ? "#1e293b" : "#dbeafe",
+                                                    primary: "#2563eb",
+                                                },
+                                            })}
+                                        />
+                                    </div>
+                                    
+                                    {/* Priorillness */}
+                                    <div className="col-span-2">
+                                        <label className="block mb-1 text-blue-700 dark:text-blue-300">Prior Illness</label>
+                                        <div className="flex gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                placeholder="New prior illness..."
+                                                value={newPriorillnessName}
+                                                onChange={e => setNewPriorillnessName(e.target.value)}
+                                                className="flex-1 border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800"
+                                            />
+                                            <button onClick={addNewPriorillness} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Add</button>
+                                        </div>
+                                        <Select
+                                            isMulti
+                                            options={priorillnessOptions}
+                                            value={selectedPriorillnesses}
+                                            onChange={val => setSelectedPriorillnesses(val ? val : [])}
+                                            isSearchable
+                                            placeholder="Select prior illnesses..."
                                             styles={{
                                                 control: (base, state) => ({
                                                     ...base,
@@ -429,86 +555,6 @@ const KnowledgebasePage: React.FC = () => {
                                             className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 w-full"
                                         />
                                     </div>
-                                    {/* Priorillness */}
-                                    <div className="col-span-2">
-                                        <label className="block mb-1 text-blue-700 dark:text-blue-300">Prior Illness</label>
-                                        <div className="flex gap-2 mb-2">
-                                            <input
-                                                type="text"
-                                                placeholder="New prior illness..."
-                                                value={newPriorillnessName}
-                                                onChange={e => setNewPriorillnessName(e.target.value)}
-                                                className="flex-1 border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800"
-                                            />
-                                            <button onClick={addNewPriorillness} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Add</button>
-                                        </div>
-                                        <Select
-                                            isMulti
-                                            options={priorillnessOptions}
-                                            value={selectedPriorillnesses}
-                                            onChange={setSelectedPriorillnesses}
-                                            isSearchable
-                                            menuPortalTarget={null}
-                                            placeholder="Select prior illness(es)..."
-                                            styles={{
-                                                control: (base, state) => ({
-                                                    ...base,
-                                                    backgroundColor: isDarkMode
-                                                        ? state.isFocused
-                                                            ? "#1e293b"
-                                                            : "#0f172a"
-                                                        : state.isFocused
-                                                            ? "#e0e7ff"
-                                                            : "#f0f6ff",
-                                                    borderColor: isDarkMode
-                                                        ? state.isFocused
-                                                            ? "#3b82f6"
-                                                            : "#475569"
-                                                        : state.isFocused
-                                                            ? "#2563eb"
-                                                            : "#bfdbfe",
-                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a",
-                                                    boxShadow: state.isFocused
-                                                        ? isDarkMode
-                                                            ? "0 0 0 2px rgba(59,130,246,0.3)"
-                                                            : "0 0 0 2px rgba(37,99,235,0.2)"
-                                                        : undefined,
-                                                    minHeight: 44,
-                                                }),
-                                                menu: (base) => ({
-                                                    ...base,
-                                                    backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
-                                                    color: isDarkMode ? "#f9fafb" : "#1e3a8a",
-                                                }),
-                                                multiValue: (base) => ({
-                                                    ...base,
-                                                    backgroundColor: isDarkMode ? "#1e293b" : "#dbeafe",
-                                                    color: isDarkMode ? "#fff" : "#1e40af",
-                                                }),
-                                                multiValueLabel: (base) => ({
-                                                    ...base,
-                                                    color: isDarkMode ? "#fff" : "#1e40af",
-                                                }),
-                                                multiValueRemove: (base) => ({
-                                                    ...base,
-                                                    color: isDarkMode ? "#fff" : "#1e40af",
-                                                    ':hover': {
-                                                        backgroundColor: "#2563eb",
-                                                        color: "white",
-                                                    },
-                                                }),
-                                            }}
-                                            theme={(theme) => ({
-                                                ...theme,
-                                                borderRadius: 8,
-                                                colors: {
-                                                    ...theme.colors,
-                                                    primary25: isDarkMode ? "#1e293b" : "#dbeafe",
-                                                    primary: "#2563eb",
-                                                },
-                                            })}
-                                        />
-                                    </div>
                                 </div>
                                 <div className="flex justify-end space-x-4">
                                     <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 border border-blue-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800 transition">Cancel</button>
@@ -524,3 +570,4 @@ const KnowledgebasePage: React.FC = () => {
 };
 
 export default KnowledgebasePage;
+
