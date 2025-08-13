@@ -14,6 +14,12 @@ class Disease extends Model
         'type',
         'description',
     ];
+    protected $primaryKey = 'disease_id'; // if not default 'id'
+
+    public function knowledgeBase()
+    {
+        return $this->hasOne(KnowledgeBase::class, 'disease_id', 'disease_id');
+    }
 
     public function symptoms()
     {

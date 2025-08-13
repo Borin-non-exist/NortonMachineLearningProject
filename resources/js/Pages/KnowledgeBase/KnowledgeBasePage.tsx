@@ -9,6 +9,7 @@ interface Disease {
     id: number;
     diseases_name: string;
     type: string;
+    description: string;
 }
 
 interface Symptom {
@@ -48,6 +49,27 @@ const KnowledgebasePage: React.FC = () => {
     const [search, setSearch] = useState<string>("");
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const isDarkMode = document.documentElement.classList.contains("dark");
+
+    // Disease description state for modal
+    const [diseaseDescription, setDiseaseDescription] = useState<string>("");
+
+    // For Action dropdown
+    const [menuOpenIndex, setMenuOpenIndex] = useState<number | null>(null);
+
+    // View Detail Modal state
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewKb, setViewKb] = useState<Knowledgebase | null>(null);
+    const [viewPriorArr, setViewPriorArr] = useState<string[]>([]);
+
+    // Edit Modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editKb, setEditKb] = useState<Knowledgebase | null>(null);
+    const [editDiseaseName, setEditDiseaseName] = useState<string>("");
+    const [editDiseaseType, setEditDiseaseType] = useState<string>("airway");
+    const [editDiseaseDescription, setEditDiseaseDescription] = useState<string>("");
+    const [editSelectedSymptoms, setEditSelectedSymptoms] = useState<MultiValue<{ value: number; label: string }>>([]);
+    const [editTreatmentDescription, setEditTreatmentDescription] = useState<string>("");
+    const [editSelectedPriorillnesses, setEditSelectedPriorillnesses] = useState<MultiValue<{ value: number; label: string }>>([]);
 
     // Data from backend
     const [knowledgebases, setKnowledgebases] = useState<Knowledgebase[]>(props.knowledgebases || []);
@@ -192,12 +214,13 @@ const KnowledgebasePage: React.FC = () => {
     const handleSubmit = () => {
         let disease_name = newDiseaseName.trim();
         let disease_type = newDiseaseType;
+        let disease_description = diseaseDescription.trim();
         let symptom_ids = selectedSymptoms.map(s => s.value);
         let treatment_description = treatmentDescription.trim();
         let priorillness_ids = selectedPriorillnesses.map(p => p.value);
 
         // Validation
-        if (!disease_name || !disease_type || symptom_ids.length === 0 || !treatment_description || priorillness_ids.length === 0) {
+        if (!disease_name || !disease_type || !disease_description || symptom_ids.length === 0 || !treatment_description || priorillness_ids.length === 0) {
             alert("Please fill all required fields.");
             return;
         }
@@ -206,6 +229,7 @@ const KnowledgebasePage: React.FC = () => {
         router.post('/knowledgebases', {
             disease_name,
             disease_type,
+            disease_description,
             symptom_ids,
             treatment_description,
             priorillness_ids,
@@ -215,6 +239,7 @@ const KnowledgebasePage: React.FC = () => {
                 setIsModalOpen(false);
                 setNewDiseaseName("");
                 setNewDiseaseType("airway");
+                setDiseaseDescription("");
                 setSelectedSymptoms([]);
                 setTreatmentDescription("");
                 setSelectedPriorillnesses([]);
@@ -232,6 +257,7 @@ const KnowledgebasePage: React.FC = () => {
         setIsModalOpen(true);
         setNewDiseaseName("");
         setNewDiseaseType("airway");
+        setDiseaseDescription("");
         setSelectedSymptoms([]);
         setTreatmentDescription("");
         setSelectedPriorillnesses([]);
@@ -291,10 +317,11 @@ const KnowledgebasePage: React.FC = () => {
                             <table className="w-full text-gray-800 dark:text-white">
                                 <thead className="bg-blue-50 dark:bg-gray-800 border-b dark:border-gray-700">
                                     <tr>
+                                        <th className="p-3 text-left font-semibold">ID</th>
                                         <th className="p-3 text-left font-semibold">Disease</th>
-                                        <th className="p-3 text-left font-semibold">Symptom</th>
-                                        <th className="p-3 text-left font-semibold">Treatment</th>
+                                        <th className="p-3 text-left font-semibold">Type</th>
                                         <th className="p-3 text-left font-semibold">Prior Illness</th>
+                                        <th className="p-3 text-left font-semibold">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -305,14 +332,93 @@ const KnowledgebasePage: React.FC = () => {
                                             </td>
                                         </tr>
                                     )}
-                                    {filtered.map((kb, idx) => (
-                                        <tr key={kb.id} className="border-b last:border-b-0 hover:bg-blue-100/60 dark:hover:bg-gray-800/60 transition">
-                                            <td className="p-3">{kb.disease?.diseases_name} ({kb.disease?.type})</td>
-                                            <td className="p-3">{kb.symptom?.name}</td>
-                                            <td className="p-3">{kb.treatment?.description}</td>
-                                            <td className="p-3">{kb.priorillness?.priorillness_name}</td>
-                                        </tr>
-                                    ))}
+                                    {/* Group by knowledgebase id for prior illnesses */}
+                                    {filtered.map((kb, idx) => {
+                                        // Find all prior illnesses for this disease/type/symptom/treatment combo
+                                        const sameKb = filtered.filter(
+                                            k =>
+                                                k.disease?.id === kb.disease?.id &&
+                                                k.symptom?.id === kb.symptom?.id &&
+                                                k.treatment?.id === kb.treatment?.id
+                                        );
+                                        // Get unique prior illnesses
+                                        const priorArr = Array.from(
+                                            new Set(sameKb.map(k => k.priorillness?.priorillness_name))
+                                        );
+                                        // Only render the first occurrence for each unique combo
+                                        if (
+                                            filtered.findIndex(
+                                                k =>
+                                                    k.disease?.id === kb.disease?.id &&
+                                                    k.symptom?.id === kb.symptom?.id &&
+                                                    k.treatment?.id === kb.treatment?.id
+                                            ) !== idx
+                                        ) {
+                                            return null;
+                                        }
+                                        return (
+                                            <tr key={kb.id} className="border-b last:border-b-0 hover:bg-blue-100/60 dark:hover:bg-gray-800/60 transition">
+                                                <td className="p-3">{kb.id}</td>
+                                                <td className="p-3">{kb.disease?.diseases_name}</td>
+                                                <td className="p-3">{kb.disease?.type}</td>
+                                                <td className="p-3">
+                                                    {priorArr.length > 0
+                                                        ? priorArr.join(", ")
+                                                        : "-"}
+                                                </td>
+                                                <td className="p-3 relative">
+                                                    <button
+                                                        onClick={() => setMenuOpenIndex(idx)}
+                                                        className="text-xl text-gray-600 hover:text-gray-800"
+                                                    >
+                                                        ⋯
+                                                    </button>
+                                                    {menuOpenIndex === idx && (
+                                                        <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
+                                                            <button
+                                                                onClick={() => {
+                                                                    // View Detail logic
+                                                                    setViewKb(kb);
+                                                                    setViewPriorArr(priorArr);
+                                                                    setIsViewModalOpen(true);
+                                                                    setMenuOpenIndex(null);
+                                                                }}
+                                                                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900"
+                                                            >
+                                                                View Detail
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    // Edit logic
+                                                                    setEditKb(kb);
+                                                                    setEditDiseaseName(kb.disease?.diseases_name || "");
+                                                                    setEditDiseaseType(kb.disease?.type || "airway");
+                                                                    setEditDiseaseDescription(
+                                                                        diseases.find(d => d.id === kb.disease?.id)?.description || ""
+                                                                    );
+                                                                    setEditSelectedSymptoms([
+                                                                        { value: kb.symptom?.id, label: kb.symptom?.name }
+                                                                    ]);
+                                                                    setEditTreatmentDescription(kb.treatment?.description || "");
+                                                                    setEditSelectedPriorillnesses(
+                                                                        priorArr.map(name => {
+                                                                            const p = priorillnesses.find(pr => pr.priorillness_name === name);
+                                                                            return p ? { value: p.id, label: p.priorillness_name } : { value: 0, label: name };
+                                                                        })
+                                                                    );
+                                                                    setIsEditModalOpen(true);
+                                                                    setMenuOpenIndex(null);
+                                                                }}
+                                                                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -320,11 +426,11 @@ const KnowledgebasePage: React.FC = () => {
 
                     {/* Add Knowledgebase Modal */}
                     {isModalOpen && (
-                        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
                             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-2xl space-y-6 border border-blue-200 dark:border-gray-800">
                                 <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-2">Add New Knowledgebase</h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {/* Disease select or add */}
+                                    {/* Disease */}
                                     <div className="col-span-2">
                                         <label className="block mb-1 text-blue-700 dark:text-blue-300">Disease Name</label>
                                         <input
@@ -383,6 +489,17 @@ const KnowledgebasePage: React.FC = () => {
                                                     primary: "#2563eb",
                                                 },
                                             })}
+                                        />
+                                    </div>
+                                    {/* Description */}
+                                    <div className="col-span-2">
+                                        <label className="block mb-1 text-blue-700 dark:text-blue-300">Disease Description</label>
+                                        <textarea
+                                            placeholder="Disease description"
+                                            value={diseaseDescription}
+                                            onChange={e => setDiseaseDescription(e.target.value)}
+                                            rows={2}
+                                            className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 w-full"
                                         />
                                     </div>
                                     {/* Symptoms multi-select and add */}
@@ -565,6 +682,281 @@ const KnowledgebasePage: React.FC = () => {
                     )}
                 </div>
             </main>
+
+            {/* View Detail Modal */}
+            {isViewModalOpen && viewKb && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg space-y-6 border border-blue-200 dark:border-gray-800">
+                        <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-2">Knowledgebase Detail</h2>
+                        <div className="space-y-2">
+                            <div><strong>ID:</strong> {viewKb.id}</div>
+                            <div><strong>Disease:</strong> {viewKb.disease?.diseases_name}</div>
+                            <div><strong>Type:</strong> {viewKb.disease?.type}</div>
+                            <div>
+                                <strong>Description:</strong>{" "}
+                                {diseases.find(d => d.id === viewKb.disease?.id)?.description || "-"}
+                            </div>
+                            <div><strong>Symptom:</strong> {viewKb.symptom?.name}</div>
+                            <div><strong>Treatment:</strong> {viewKb.treatment?.description}</div>
+                            <div>
+                                <strong>Prior Illness:</strong>{" "}
+                                {viewPriorArr.length > 0 ? viewPriorArr.join(", ") : "-"}
+                            </div>
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={() => setIsViewModalOpen(false)}
+                                className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Knowledgebase Modal */}
+            {isEditModalOpen && editKb && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-2xl space-y-6 border border-blue-200 dark:border-gray-800">
+                        <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-2">Edit Knowledgebase</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Disease */}
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Disease Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Disease name"
+                                    value={editDiseaseName}
+                                    onChange={e => setEditDiseaseName(e.target.value)}
+                                    className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 w-full"
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Type</label>
+                                <Select
+                                    options={diseaseTypeOptions}
+                                    value={diseaseTypeOptions.find(opt => opt.value === editDiseaseType)}
+                                    onChange={opt => setEditDiseaseType(opt?.value || "airway")}
+                                    isSearchable={false}
+                                    className="mb-2"
+                                    styles={{
+                                        control: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#1e293b"
+                                                    : "#0f172a"
+                                                : state.isFocused
+                                                    ? "#e0e7ff"
+                                                    : "#f0f6ff",
+                                            borderColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#3b82f6"
+                                                    : "#475569"
+                                                : state.isFocused
+                                                    ? "#2563eb"
+                                                    : "#bfdbfe",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                            boxShadow: state.isFocused
+                                                ? isDarkMode
+                                                    ? "0 0 0 2px rgba(59,130,246,0.3)"
+                                                    : "0 0 0 2px rgba(37,99,235,0.2)"
+                                                : undefined,
+                                            minHeight: 44,
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                        }),
+                                    }}
+                                    theme={(theme) => ({
+                                        ...theme,
+                                        borderRadius: 8,
+                                        colors: {
+                                            ...theme.colors,
+                                            primary25: isDarkMode ? "#1e293b" : "#dbeafe",
+                                            primary: "#2563eb",
+                                        },
+                                    })}
+                                />
+                            </div>
+                            {/* Description */}
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Description</label>
+                                <textarea
+                                    placeholder="Disease description"
+                                    value={editDiseaseDescription}
+                                    onChange={e => setEditDiseaseDescription(e.target.value)}
+                                    rows={2}
+                                    className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 w-full"
+                                />
+                            </div>
+                            {/* Symptoms multi-select */}
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Symptoms</label>
+                                <Select
+                                    isMulti
+                                    options={symptomOptions}
+                                    value={editSelectedSymptoms}
+                                    onChange={val => setEditSelectedSymptoms(val ? val : [])}
+                                    isSearchable
+                                    placeholder="Select symptoms..."
+                                    styles={{
+                                        control: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#1e293b"
+                                                    : "#0f172a"
+                                                : state.isFocused
+                                                    ? "#e0e7ff"
+                                                    : "#f0f6ff",
+                                            borderColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#3b82f6"
+                                                    : "#475569"
+                                                : state.isFocused
+                                                    ? "#2563eb"
+                                                    : "#bfdbfe",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                            boxShadow: state.isFocused
+                                                ? isDarkMode
+                                                    ? "0 0 0 2px rgba(59,130,246,0.3)"
+                                                    : "0 0 0 2px rgba(37,99,235,0.2)"
+                                                : undefined,
+                                            minHeight: 44,
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                        }),
+                                    }}
+                                    theme={(theme) => ({
+                                        ...theme,
+                                        borderRadius: 8,
+                                        colors: {
+                                            ...theme.colors,
+                                            primary25: isDarkMode ? "#1e293b" : "#dbeafe",
+                                            primary: "#2563eb",
+                                        },
+                                    })}
+                                />
+                            </div>
+                            {/* Priorillness multi-select */}
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Prior Illness</label>
+                                <Select
+                                    isMulti
+                                    options={priorillnessOptions}
+                                    value={editSelectedPriorillnesses}
+                                    onChange={val => setEditSelectedPriorillnesses(val ? val : [])}
+                                    isSearchable
+                                    placeholder="Select prior illnesses..."
+                                    styles={{
+                                        control: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#1e293b"
+                                                    : "#0f172a"
+                                                : state.isFocused
+                                                    ? "#e0e7ff"
+                                                    : "#f0f6ff",
+                                            borderColor: isDarkMode
+                                                ? state.isFocused
+                                                    ? "#3b82f6"
+                                                    : "#475569"
+                                                : state.isFocused
+                                                    ? "#2563eb"
+                                                    : "#bfdbfe",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                            boxShadow: state.isFocused
+                                                ? isDarkMode
+                                                    ? "0 0 0 2px rgba(59,130,246,0.3)"
+                                                    : "0 0 0 2px rgba(37,99,235,0.2)"
+                                                : undefined,
+                                            minHeight: 44,
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDarkMode ? "#0f172a" : "#f0f6ff",
+                                            color: isDarkMode ? "#f9fafb" : "#1e3a8a",
+                                        }),
+                                    }}
+                                    theme={(theme) => ({
+                                        ...theme,
+                                        borderRadius: 8,
+                                        colors: {
+                                            ...theme.colors,
+                                            primary25: isDarkMode ? "#1e293b" : "#dbeafe",
+                                            primary: "#2563eb",
+                                        },
+                                    })}
+                                />
+                            </div>
+                            {/* Treatment */}
+                            <div className="col-span-2">
+                                <label className="block mb-1 text-blue-700 dark:text-blue-300">Treatment</label>
+                                <textarea
+                                    placeholder="Treatment description"
+                                    value={editTreatmentDescription}
+                                    onChange={e => setEditTreatmentDescription(e.target.value)}
+                                    rows={2}
+                                    className="border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800 w-full"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="px-4 py-2 border border-blue-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    // Edit submit logic
+                                    const disease_name = editDiseaseName.trim();
+                                    const disease_type = editDiseaseType;
+                                    const disease_description = editDiseaseDescription.trim();
+                                    const symptom_ids = editSelectedSymptoms.map(s => s.value);
+                                    const treatment_description = editTreatmentDescription.trim();
+                                    const priorillness_ids = editSelectedPriorillnesses.map(p => p.value);
+
+                                    if (!disease_name || !disease_type || !disease_description || symptom_ids.length === 0 || !treatment_description || priorillness_ids.length === 0) {
+                                        alert("Please fill all required fields.");
+                                        return;
+                                    }
+
+                                    router.put(`/knowledgebases/${editKb.id}`, {
+                                        disease_name,
+                                        disease_type,
+                                        disease_description,
+                                        symptom_ids,
+                                        treatment_description,
+                                        priorillness_ids,
+                                    }, {
+                                        preserveScroll: true,
+                                        onSuccess: () => {
+                                            setIsEditModalOpen(false);
+                                            router.get('/knowledgebases', {}, { preserveState: true });
+                                        },
+                                        onError: (errors) => {
+                                            console.log(errors);
+                                        }
+                                    });
+                                }}
+                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded hover:from-blue-600 hover:to-blue-800 transition"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

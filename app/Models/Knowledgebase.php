@@ -15,21 +15,21 @@ class Knowledgebase extends Model
 
     public function disease()
     {
-        return $this->belongsTo(Disease::class, 'disease_id');
+        return $this->belongsTo(Disease::class, 'disease_id', 'disease_id');
     }
 
     public function symptom()
     {
-        return $this->belongsTo(Symptom::class, 'symptom_id');
+        return $this->belongsToMany(Symptom::class, 'knowledgebase_symptom');
     }
 
     public function treatment()
     {
-        return $this->belongsTo(Treatment::class, 'treatment_id');
+        return $this->belongsToMany(Treatment::class, 'knowledgebase_treatment');
     }
 
     public function priorillness()
     {
-        return $this->belongsTo(Priorillness::class, 'priorillness_id');
+        return $this->belongsToMany(Priorillness::class, 'knowledgebase_priorillness');
     }
 }

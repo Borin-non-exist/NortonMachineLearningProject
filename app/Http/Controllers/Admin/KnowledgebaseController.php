@@ -57,6 +57,7 @@ class KnowledgebaseController extends Controller
             // Disease
             'disease_name' => 'required|string',
             'disease_type' => 'required|string',
+            'disease_description' => 'required|string',
             // Symptom(s)
             'symptom_ids' => 'required|array',
             'symptom_ids.*' => 'exists:symptoms,id',
@@ -70,7 +71,7 @@ class KnowledgebaseController extends Controller
         // Create or get Disease
         $disease = Disease::firstOrCreate(
             ['diseases_name' => $data['disease_name']],
-            ['type' => $data['disease_type'], 'description' => '']
+            ['type' => $data['disease_type'], 'description' => $data['disease_description']]
         );
 
         // Create or get Treatment
