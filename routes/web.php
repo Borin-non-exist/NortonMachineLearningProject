@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiseaseController;
 use App\Http\Controllers\Admin\SymptomController;
+use App\Http\Controllers\Admin\KnowledgebaseController;
 
 // Public routes
 
@@ -87,4 +88,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin,doctor'])->group(func
     Route::post('/diseases', [DiseaseController::class, 'store']);
     Route::post('/symptoms', [SymptomController::class, 'store']);
     Route::get('/symptoms', [SymptomController::class, 'index'])->name('symptoms.index');
+    Route::post('/priorillnesses', [\App\Http\Controllers\Admin\PriorillnessController::class, 'store'])->name('priorillnesses.store');
+
+    // Knowledgebase routes
+    Route::get('/knowledgebases', [KnowledgebaseController::class, 'index'])->name('knowledgebases.index');
+    Route::post('/knowledgebases', [KnowledgebaseController::class, 'store'])->name('knowledgebases.store');
 });
