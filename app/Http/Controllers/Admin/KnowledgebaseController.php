@@ -39,7 +39,7 @@ class KnowledgebaseController extends Controller
             'priorillnesses' => $priorillnesses->count(),
         ]);
 
-        return inertia('ListDisease/ListDisease', [
+        return inertia('KnowledgeBase/KnowledgeBasePage', [
             'knowledgebases' => $knowledgebases,
             'diseases' => $diseases,
             'symptoms' => $symptoms,

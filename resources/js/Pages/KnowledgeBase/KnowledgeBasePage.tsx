@@ -265,7 +265,7 @@ const KnowledgebasePage: React.FC = () => {
             {/* Main */}
             <main className="flex-1 w-full sm:ml-64 px-4 py-8 transition-all duration-300">
                 <div className="max-w-7xl mx-auto space-y-8">
-                    <Header title="Knowledgebase" />
+                    <Header title="KnowledgeBase" />
 
                     {/* Toolbar & Table */}
                     <div className="rounded-2xl p-6 bg-white/80 dark:bg-gray-900/80 shadow-xl border border-blue-200 dark:border-gray-800">

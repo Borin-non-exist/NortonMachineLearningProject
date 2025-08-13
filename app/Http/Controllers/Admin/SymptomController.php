@@ -8,10 +8,10 @@ use App\Models\Symptom;
 
 class SymptomController extends Controller
 {
-    public function index()
+    /* public function index()
     {
         return response()->json(Symptom::pluck('name'));
-    }
+    } */
 
     public function store(Request $request)
     {

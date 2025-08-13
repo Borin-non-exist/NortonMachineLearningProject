@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiseaseController;
 use App\Http\Controllers\Admin\SymptomController;
 use App\Http\Controllers\Admin\KnowledgebaseController;
+use App\Http\Controllers\Admin\PriorillnessController;
 
 // Public routes
 
@@ -84,11 +85,9 @@ Route::middleware(['auth', RoleMiddleware::class . ':doctor'])->group(function (
 
 // Admin & Doctor shared routes
 Route::middleware(['auth', RoleMiddleware::class . ':admin,doctor'])->group(function () {
-    Route::get('/diseases', [DiseaseController::class, 'index'])->name('diseases.index');
     Route::post('/diseases', [DiseaseController::class, 'store']);
     Route::post('/symptoms', [SymptomController::class, 'store']);
-    Route::get('/symptoms', [SymptomController::class, 'index'])->name('symptoms.index');
-    Route::post('/priorillnesses', [\App\Http\Controllers\Admin\PriorillnessController::class, 'store'])->name('priorillnesses.store');
+    Route::post('/priorillnesses', [PriorillnessController::class, 'store'])->name('priorillnesses.store');
 
     // Knowledgebase routes
     Route::get('/knowledgebases', [KnowledgebaseController::class, 'index'])->name('knowledgebases.index');
