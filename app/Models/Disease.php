@@ -14,7 +14,7 @@ class Disease extends Model
         'type',
         'description',
     ];
-    protected $primaryKey = 'disease_id'; // if not default 'id'
+    // protected $primaryKey = 'disease_id'; // use default 'id'
 
     public function knowledgeBase()
     {

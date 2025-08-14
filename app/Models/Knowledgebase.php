@@ -8,27 +8,24 @@ class Knowledgebase extends Model
 {
     protected $fillable = [
         'disease_id',
-        'symptom_id',
-        'treatment_id',
-        'priorillness_id',
     ];
 
     public function disease()
     {
-        return $this->belongsTo(Disease::class, 'disease_id', 'disease_id');
+        return $this->belongsTo(Disease::class, 'disease_id', 'id');
     }
 
-    public function symptom()
+    public function symptoms()
     {
         return $this->belongsToMany(Symptom::class, 'knowledgebase_symptom');
     }
 
-    public function treatment()
+    public function treatments()
     {
         return $this->belongsToMany(Treatment::class, 'knowledgebase_treatment');
     }
 
-    public function priorillness()
+    public function priorillnesses()
     {
         return $this->belongsToMany(Priorillness::class, 'knowledgebase_priorillness');
     }

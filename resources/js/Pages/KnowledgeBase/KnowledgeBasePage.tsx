@@ -30,9 +30,9 @@ interface Priorillness {
 interface Knowledgebase {
     id: number;
     disease: Disease;
-    symptom: Symptom;
-    treatment: Treatment;
-    priorillness: Priorillness;
+    symptoms: Symptom[];
+    treatments: Treatment[];
+    priorillnesses: Priorillness[];
 }
 
 type PageProps = {
@@ -50,11 +50,35 @@ const KnowledgebasePage: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const isDarkMode = document.documentElement.classList.contains("dark");
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
     // Disease description state for modal
     const [diseaseDescription, setDiseaseDescription] = useState<string>("");
 
     // For Action dropdown
     const [menuOpenIndex, setMenuOpenIndex] = useState<number | null>(null);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            const dropdowns = document.querySelectorAll('.kb-action-dropdown');
+            let clickedInside = false;
+            dropdowns.forEach((dropdown) => {
+                if (dropdown.contains(e.target as Node)) {
+                    clickedInside = true;
+                }
+            });
+            if (!clickedInside) setMenuOpenIndex(null);
+        };
+        if (menuOpenIndex !== null) {
+            document.addEventListener('mousedown', handleClick);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+        };
+    }, [menuOpenIndex]);
 
     // View Detail Modal state
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -78,6 +102,11 @@ const KnowledgebasePage: React.FC = () => {
     const [treatments, setTreatments] = useState<Treatment[]>(props.treatments || []);
     const [priorillnesses, setPriorillnesses] = useState<Priorillness[]>(props.priorillnesses || []);
 
+
+    // Sync knowledgebases state with props.knowledgebases when props change
+    useEffect(() => {
+        setKnowledgebases(props.knowledgebases || []);
+    }, [props.knowledgebases]);
 
     // Sync symptoms state with props.symptoms when props change
     useEffect(() => {
@@ -158,10 +187,13 @@ const KnowledgebasePage: React.FC = () => {
     // Filtered knowledgebases
     const filtered = knowledgebases.filter((kb) =>
         kb.disease.diseases_name.toLowerCase().includes(search.toLowerCase()) ||
-        kb.symptom.name.toLowerCase().includes(search.toLowerCase()) ||
-        kb.treatment.description.toLowerCase().includes(search.toLowerCase()) ||
-        kb.priorillness.priorillness_name.toLowerCase().includes(search.toLowerCase())
+        (kb.symptoms && kb.symptoms.some(s => s.name.toLowerCase().includes(search.toLowerCase()))) ||
+        (kb.treatments && kb.treatments.some(t => t.description.toLowerCase().includes(search.toLowerCase()))) ||
+        (kb.priorillnesses && kb.priorillnesses.some(p => p.priorillness_name.toLowerCase().includes(search.toLowerCase())))
     );
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const currentKnowledgebases = filtered.slice(start, start + itemsPerPage);
 
     // Add new priorillness inline
     const addNewPriorillness = () => {
@@ -243,7 +275,7 @@ const KnowledgebasePage: React.FC = () => {
                 setSelectedSymptoms([]);
                 setTreatmentDescription("");
                 setSelectedPriorillnesses([]);
-                router.get('/knowledgebases', {}, { preserveState: true });
+                router.reload({ only: ['knowledgebases', 'diseases', 'symptoms', 'treatments', 'priorillnesses'] });
             },
             onError: (errors) => {
                 console.log(errors);
@@ -333,25 +365,12 @@ const KnowledgebasePage: React.FC = () => {
                                         </tr>
                                     )}
                                     {/* Group by knowledgebase id for prior illnesses */}
-                                    {filtered.map((kb, idx) => {
-                                        // Find all prior illnesses for this disease/type/symptom/treatment combo
-                                        const sameKb = filtered.filter(
-                                            k =>
-                                                k.disease?.id === kb.disease?.id &&
-                                                k.symptom?.id === kb.symptom?.id &&
-                                                k.treatment?.id === kb.treatment?.id
-                                        );
-                                        // Get unique prior illnesses
-                                        const priorArr = Array.from(
-                                            new Set(sameKb.map(k => k.priorillness?.priorillness_name))
-                                        );
-                                        // Only render the first occurrence for each unique combo
+                                    {currentKnowledgebases.map((kb, idx) => {
+                                        // Only render the first occurrence for each unique knowledgebase id on this page
+                                        const realIndex = start + idx;
                                         if (
-                                            filtered.findIndex(
-                                                k =>
-                                                    k.disease?.id === kb.disease?.id &&
-                                                    k.symptom?.id === kb.symptom?.id &&
-                                                    k.treatment?.id === kb.treatment?.id
+                                            currentKnowledgebases.findIndex(
+                                                k => k.id === kb.id
                                             ) !== idx
                                         ) {
                                             return null;
@@ -362,24 +381,22 @@ const KnowledgebasePage: React.FC = () => {
                                                 <td className="p-3">{kb.disease?.diseases_name}</td>
                                                 <td className="p-3">{kb.disease?.type}</td>
                                                 <td className="p-3">
-                                                    {priorArr.length > 0
-                                                        ? priorArr.join(", ")
+                                                    {kb.priorillnesses && kb.priorillnesses.length > 0
+                                                        ? kb.priorillnesses.map(p => p.priorillness_name).join(", ")
                                                         : "-"}
                                                 </td>
                                                 <td className="p-3 relative">
                                                     <button
-                                                        onClick={() => setMenuOpenIndex(idx)}
+                                                        onClick={() => setMenuOpenIndex(realIndex)}
                                                         className="text-xl text-gray-600 hover:text-gray-800"
                                                     >
                                                         ⋯
                                                     </button>
-                                                    {menuOpenIndex === idx && (
-                                                        <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
+                                                    {menuOpenIndex === realIndex && (
+                                                        <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10 kb-action-dropdown">
                                                             <button
                                                                 onClick={() => {
-                                                                    // View Detail logic
                                                                     setViewKb(kb);
-                                                                    setViewPriorArr(priorArr);
                                                                     setIsViewModalOpen(true);
                                                                     setMenuOpenIndex(null);
                                                                 }}
@@ -389,22 +406,18 @@ const KnowledgebasePage: React.FC = () => {
                                                             </button>
                                                             <button
                                                                 onClick={() => {
-                                                                    // Edit logic
                                                                     setEditKb(kb);
                                                                     setEditDiseaseName(kb.disease?.diseases_name || "");
                                                                     setEditDiseaseType(kb.disease?.type || "airway");
-                                                                    setEditDiseaseDescription(
-                                                                        diseases.find(d => d.id === kb.disease?.id)?.description || ""
+                                                                    setEditDiseaseDescription(kb.disease?.description || "");
+                                                                    setEditSelectedSymptoms(
+                                                                        kb.symptoms?.map(s => ({ value: s.id, label: s.name })) || []
                                                                     );
-                                                                    setEditSelectedSymptoms([
-                                                                        { value: kb.symptom?.id, label: kb.symptom?.name }
-                                                                    ]);
-                                                                    setEditTreatmentDescription(kb.treatment?.description || "");
+                                                                    setEditTreatmentDescription(
+                                                                        kb.treatments && kb.treatments.length > 0 ? kb.treatments[0].description : ""
+                                                                    );
                                                                     setEditSelectedPriorillnesses(
-                                                                        priorArr.map(name => {
-                                                                            const p = priorillnesses.find(pr => pr.priorillness_name === name);
-                                                                            return p ? { value: p.id, label: p.priorillness_name } : { value: 0, label: name };
-                                                                        })
+                                                                        kb.priorillnesses?.map(p => ({ value: p.id, label: p.priorillness_name })) || []
                                                                     );
                                                                     setIsEditModalOpen(true);
                                                                     setMenuOpenIndex(null);
@@ -421,6 +434,54 @@ const KnowledgebasePage: React.FC = () => {
                                     })}
                                 </tbody>
                             </table>
+                        </div>
+                        {/* Pagination */}
+                        <div className="flex justify-between items-center mt-4 text-sm text-gray-600 dark:text-gray-300 flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                                <span>Display</span>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={e => {
+                                        setItemsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-800"
+                                >
+                                    {[10, 25, 50].map(opt => (
+                                        <option key={opt} value={opt}>
+                                            {opt}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-2 py-1 border rounded disabled:opacity-50"
+                                >
+                                    {'<'}
+                                </button>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`px-3 py-1 rounded ${currentPage === i + 1
+                                            ? "bg-blue-500 text-white"
+                                            : "border border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-2 py-1 border rounded disabled:opacity-50"
+                                >
+                                    {'>'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -508,7 +569,7 @@ const KnowledgebasePage: React.FC = () => {
                                         <div className="flex gap-2 mb-2">
                                             <input
                                                 type="text"
-                                                placeholder="New prior illness..."
+                                                placeholder="New symptom..."
                                                 value={newSymptomName}
                                                 onChange={e => setNewSymptomName(e.target.value)}
                                                 className="flex-1 border border-blue-200 dark:border-gray-700 rounded p-2 bg-blue-50 dark:bg-gray-800"
@@ -694,13 +755,25 @@ const KnowledgebasePage: React.FC = () => {
                             <div><strong>Type:</strong> {viewKb.disease?.type}</div>
                             <div>
                                 <strong>Description:</strong>{" "}
-                                {diseases.find(d => d.id === viewKb.disease?.id)?.description || "-"}
+                                {viewKb.disease?.description || "-"}
                             </div>
-                            <div><strong>Symptom:</strong> {viewKb.symptom?.name}</div>
-                            <div><strong>Treatment:</strong> {viewKb.treatment?.description}</div>
                             <div>
-                                <strong>Prior Illness:</strong>{" "}
-                                {viewPriorArr.length > 0 ? viewPriorArr.join(", ") : "-"}
+                                <strong>Symptoms:</strong>{" "}
+                                {viewKb.symptoms && viewKb.symptoms.length > 0
+                                    ? viewKb.symptoms.map(s => s.name).join(", ")
+                                    : "-"}
+                            </div>
+                            <div>
+                                <strong>Treatments:</strong>{" "}
+                                {viewKb.treatments && viewKb.treatments.length > 0
+                                    ? viewKb.treatments.map(t => t.description).join(", ")
+                                    : "-"}
+                            </div>
+                            <div>
+                                <strong>Prior Illnesses:</strong>{" "}
+                                {viewKb.priorillnesses && viewKb.priorillnesses.length > 0
+                                    ? viewKb.priorillnesses.map(p => p.priorillness_name).join(", ")
+                                    : "-"}
                             </div>
                         </div>
                         <div className="flex justify-end">

@@ -92,4 +92,5 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin,doctor'])->group(func
     // Knowledgebase routes
     Route::get('/knowledgebases', [KnowledgebaseController::class, 'index'])->name('knowledgebases.index');
     Route::post('/knowledgebases', [KnowledgebaseController::class, 'store'])->name('knowledgebases.store');
+    Route::put('/knowledgebases/{id}', [KnowledgebaseController::class, 'update'])->name('knowledgebases.update');
 });
