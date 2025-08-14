@@ -2,17 +2,44 @@ import React, { useEffect, useState, useRef } from "react";
 import { router, Link } from "@inertiajs/react";
 import { MessageSquarePlus, History as HistoryIcon } from "lucide-react";
 import { BiUndo } from "react-icons/bi";
+import Select, { MultiValue, components, OptionProps } from "react-select";
 import questions from "./questions.json";
 import historyData from "./history.json";
 
-// Custom multi-select dropdown component
-function MultiSelect({ id, options, selected, onChange, placeholder }) {
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+/** Custom Option for react-select with checkbox */
+const CheckboxOption = (props: OptionProps<any, boolean>) => (
+    <components.Option {...props}>
+        <input
+            type="checkbox"
+            checked={props.isSelected}
+            tabIndex={-1}
+            style={{ marginRight: 8 }}
+            onMouseDown={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.selectOption(props.data.value);
+            }}
+        />
+        <label>{props.label}</label>
+    </components.Option>
+);
 
-    const toggleOpen = () => setOpen(prev => !prev);
-    const handleClickOutside = e => {
-        if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+// Custom multi-select dropdown component
+type MultiSelectProps = {
+    id: string;
+    options: string[];
+    selected: string[];
+    onChange: (id: string, value: string[]) => void;
+    placeholder: string;
+};
+
+function MultiSelect({ id, options, selected, onChange, placeholder }: MultiSelectProps) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    const toggleOpen = () => setOpen((prev) => !prev);
+    const handleClickOutside = (e: MouseEvent) => {
+        if (ref.current && ref.current.contains && !ref.current.contains(e.target as Node)) setOpen(false);
     };
 
     useEffect(() => {
@@ -20,8 +47,8 @@ function MultiSelect({ id, options, selected, onChange, placeholder }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const onOptionToggle = opt => {
-        if (selected.includes(opt)) onChange(id, selected.filter(o => o !== opt));
+    const onOptionToggle = (opt: string) => {
+        if (selected.includes(opt)) onChange(id, selected.filter((o) => o !== opt));
         else onChange(id, [...selected, opt]);
     };
 
@@ -44,7 +71,7 @@ function MultiSelect({ id, options, selected, onChange, placeholder }) {
             </button>
             {open && (
                 <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {options.map(opt => (
+                    {options.map((opt) => (
                         <label key={opt} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                             <input
                                 type="checkbox"
@@ -61,34 +88,45 @@ function MultiSelect({ id, options, selected, onChange, placeholder }) {
     );
 }
 
-export default function SymptomFormPage() {
-    const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState({});
+type SymptomPageProps = {
+    symptoms: string[];
+};
+
+type FormDataType = {
+    [key: string]: any;
+};
+
+export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
+    const [step, setStep] = useState<number>(1);
+    const [formData, setFormData] = useState<FormDataType>({});
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const isLoggedIn = !!localStorage.getItem("auth_token");
     const [showValidationModal, setShowValidationModal] = useState(false);
 
     const stepQuestions = questions.filter(q => q.step === step);
 
-    const handleChange = (id, value) => setFormData(prev => ({ ...prev, [id]: value }));
+    const handleChange = (id: string, value: any) => setFormData((prev) => ({ ...prev, [id]: value }));
 
-    const toggleCheckbox = (id, option) => {
-        const prev = formData[id] || [];
+    const toggleCheckbox = (id: string, option: string) => {
+        const prev: string[] = formData[id] || [];
         handleChange(
             id,
-            prev.includes(option) ? prev.filter(o => o !== option) : [...prev, option]
+            prev.includes(option) ? prev.filter((o: string) => o !== option) : [...prev, option]
         );
     };
 
     const handleNext = () => {
+        // For step 1, require ageRange and weight
         if (
-            stepQuestions.some(
-                q =>
-                    q.required &&
-                    (formData[q.id] === undefined ||
-                        (Array.isArray(formData[q.id]) ? formData[q.id].length === 0 : !formData[q.id]))
+            step === 1 &&
+            (
+                !formData["ageRange"] ||
+                formData["ageRange"] === "" ||
+                !formData["weight"] ||
+                formData["weight"] === ""
             )
         ) {
+            window.alert("Please fill in both your age range and weight before proceeding to the next page.");
             return setShowValidationModal(true);
         }
         setStep(2);
@@ -121,95 +159,123 @@ export default function SymptomFormPage() {
             {/* Header, Modal, Sidebar omitted for brevity */}
             <main className={`pt-20 px-4 pb-12 flex justify-center ${sidebarOpen && isLoggedIn ? "md:mr-64" : ""}`}>
                 <div className="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 sm:p-12 border-2 dark:border-gray-600">
-                    <h1 className="text-3xl font-semibold text-blue-600 text-center">What are your symptoms?</h1>
+                    <h1 className="text-3xl font-semibold text-blue-600 text-center">Health Information</h1>
                     <div className="flex justify-end mt-4">
                         <span className="text-sm text-gray-400">Page: {step}/2</span>
                     </div>
 
-                    {stepQuestions.map(q => (
-                        <div key={q.id} className="mt-6">
-                            <div className="px-3 py-2 border rounded-full text-blue-600 bg-white dark:bg-gray-700 mb-2">
-                                {q.label} {q.required && <span className="text-red-500">*</span>}
-                            </div>
-
-                            {/* Render inputs */}
-                            {q.type === "select" && q.multiple && (
-                                <MultiSelect
-                                    id={q.id}
-                                    options={q.options}
-                                    selected={formData[q.id] || []}
-                                    onChange={handleChange}
-                                    placeholder="Select options"
-                                />
-                            )}
-
-                            {q.type === "select" && !q.multiple && (
+                    {/* Static questions for step 1 */}
+                    {step === 1 && (
+                        <>
+                            {/* Back Button */}
+                            {/* (Back button moved to button row below) */}
+                            {/* Age Range */}
+                            <div className="mt-6">
+                                <div className="px-3 py-2 border rounded-full text-blue-600 bg-white dark:bg-gray-700 mb-2">
+                                    What is your age range? <span className="text-red-500">*</span>
+                                </div>
                                 <select
-                                    value={formData[q.id] || ""}
-                                    onChange={e => handleChange(q.id, e.target.value)}
+                                    value={formData["ageRange"] || ""}
+                                    onChange={e => handleChange("ageRange", e.target.value)}
                                     className="w-full px-3 py-2 border rounded-lg mb-2"
                                 >
-                                    <option value="">Select an option</option>
-                                    {q.options.map(opt => (
-                                        <option key={opt} value={opt}>
-                                            {opt}
-                                        </option>
-                                    ))}
+                                    <option value="">Select your age range</option>
+                                    <option value="0-18">0-18</option>
+                                    <option value="19-30">19-30</option>
+                                    <option value="31-45">31-45</option>
+                                    <option value="46-60">46-60</option>
+                                    <option value="61+">61+</option>
                                 </select>
-                            )}
-
-                            {/* Numeric input with kg suffix */}
-                            {q.id === "weightRange" && (
+                            </div>
+                            {/* Weight */}
+                            <div className="mt-6">
+                                <div className="px-3 py-2 border rounded-full text-blue-600 bg-white dark:bg-gray-700 mb-2">
+                                    What is your weight? <span className="text-red-500">*</span>
+                                </div>
                                 <div className="relative mt-3">
                                     <input
                                         type="number"
-                                        value={formData[q.id] || ""}
-                                        onChange={e => handleChange(q.id, e.target.value)}
+                                        value={formData["weight"] || ""}
+                                        onChange={e => handleChange("weight", e.target.value)}
                                         min={1}
                                         step={0.1}
                                         className="w-full pr-12 px-3 py-2 border rounded-lg mb-2"
                                     />
                                     <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">kg</span>
                                 </div>
-                            )}
+                            </div>
+                        </>
+                    )}
 
-                            {q.type === "checkbox" && (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {q.options.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-2 p-2 border rounded-lg">
-                                            <input
-                                                type="checkbox"
-                                                checked={(formData[q.id] || []).includes(opt)}
-                                                onChange={() => toggleCheckbox(q.id, opt)}
-                                            />
-                                            <span>{opt}</span>
-                                        </label>
-                                    ))}
+                    {/* Static questions for step 2 */}
+                    {step === 2 && (
+                        <>
+                            {/* Main Symptom */}
+                            <div className="mt-6">
+                                <div className="px-3 py-2 border rounded-full text-blue-600 bg-white dark:bg-gray-700 mb-2">
+                                    What is your main symptom? <span className="text-red-500">*</span>
                                 </div>
-                            )}
-                            {q.type === "radio" && (
-                                <div className="flex flex-wrap gap-3">
-                                    {q.options.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name={q.id}
-                                                value={opt}
-                                                checked={formData[q.id] === opt}
-                                                onChange={() => handleChange(q.id, opt)}
-                                            />
-                                            <span>{opt}</span>
-                                        </label>
-                                    ))}
+                                <Select
+                                    isMulti
+                                    isSearchable
+                                    closeMenuOnSelect={false}
+                                    options={symptoms.map(s => ({ value: s, label: s }))}
+                                    value={(formData["mainSymptom"] || []).map((s: string) => ({ value: s, label: s }))}
+                                    onChange={(val: MultiValue<{ value: string; label: string }>) =>
+                                        handleChange("mainSymptom", val.map(v => v.value))
+                                    }
+                                    placeholder="Select your main symptom"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            </div>
+                            {/* Prior Illnesses */}
+                            <div className="mt-6">
+                                <div className="px-3 py-2 border rounded-full text-blue-600 bg-white dark:bg-gray-700 mb-2">
+                                    Which prior illnesses have you had?
                                 </div>
-                            )}
-                        </div>
-                    ))} {/* <-- THIS LINE CLOSES THE MAP PROPERLY */}
+                                <Select
+                                    isMulti
+                                    isSearchable
+                                    closeMenuOnSelect={false}
+                                    options={[
+                                        { value: "Diabetes", label: "Diabetes" },
+                                        { value: "Hypertension", label: "Hypertension" },
+                                        { value: "Asthma", label: "Asthma" },
+                                        { value: "Heart Disease", label: "Heart Disease" },
+                                        { value: "Kidney Disease", label: "Kidney Disease" },
+                                        { value: "Liver Disease", label: "Liver Disease" },
+                                        { value: "Cancer", label: "Cancer" },
+                                        { value: "None", label: "None" }
+                                    ]}
+                                    value={(formData["priorIllnesses"] || []).map((s: string) => ({ value: s, label: s }))}
+                                    onChange={(val: MultiValue<{ value: string; label: string }>) =>
+                                        handleChange("priorIllnesses", val.map(v => v.value))
+                                    }
+                                    placeholder="Select prior illnesses"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            </div>
+                        </>
+                    )}
 
                 <div className="mt-8 flex justify-between">
-                    {step === 2 && (
-                        <button onClick={() => setStep(1)} className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg">
+                    {step === 1 ? (
+                        <button
+                            onClick={() => router.get("/welcome")}
+                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
+                        >
                             <BiUndo />
+                            Back
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setStep(1)}
+                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
+                        >
+                            <BiUndo />
+                            Back
                         </button>
                     )}
                     <button

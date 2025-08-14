@@ -15,7 +15,7 @@
 ,
 {
   "id": "weightRange",
-  "label": "What is your weight range? *",
+  "label": "What is your weight?",
   "type": "text",
   "required": true,
   "step": 1

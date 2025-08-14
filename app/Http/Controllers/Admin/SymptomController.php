@@ -24,4 +24,11 @@ class SymptomController extends Controller
             'symptom' => $symptom,
         ]);
     }
+    public function symptomFormPage()
+    {
+        $symptoms = \App\Models\Symptom::pluck('name');
+        return inertia('WelcomePage/SymptomPage', [
+            'symptoms' => $symptoms,
+        ]);
+    }
 }

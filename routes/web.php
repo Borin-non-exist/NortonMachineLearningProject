@@ -69,8 +69,8 @@ Route::middleware('auth')->get('/redirect-by-role', function () {
 //    ROLE-BASED ROUTES
 // Public routes
 Route::get('/welcome', fn() => Inertia::render('WelcomePage/WelcomePage'))->name('welcome');
-Route::get('/symptom-form', fn() => Inertia::render('WelcomePage/SymptomPage'))->name('symptom-form');
-
+Route::get('/symptom-form', [App\Http\Controllers\Admin\SymptomController::class, 'symptomFormPage'])->name('symptom-form');
+Route::get('/result', fn() => Inertia::render('WelcomePage/resultspage'))->name('result');
 
 // Admin-only routes
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {

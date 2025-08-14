@@ -3,6 +3,15 @@ import { Link, router } from "@inertiajs/react";
 import { BiUndo } from "react-icons/bi";
 import { MessageSquarePlus, History as HistoryIcon } from "lucide-react";
 import historyData from "./history.json";
+
+type HistoryItem = {
+  id: number;
+  label: string;
+  date: string;
+  details: string;
+};
+
+const typedHistoryData = historyData as HistoryItem[];
 import NavbarAuthActions from "@/components/NavbarAuthActions";
 
 const WelcomePage: React.FC = () => {
@@ -38,11 +47,7 @@ const WelcomePage: React.FC = () => {
               <HistoryIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
             </button>
           )}
-          <NavbarAuthActions
-            isLoggedIn={isLoggedIn}
-            setIsLoggedIn={setIsLoggedIn}
-            avatarMode
-          />
+          <NavbarAuthActions />
         </div>
       </header>
 
@@ -113,9 +118,9 @@ const WelcomePage: React.FC = () => {
             Recently
           </h3>
           <ul className="space-y-4">
-            {historyData.map((item, idx) => (
+            {typedHistoryData.map((item) => (
               <li
-                key={idx}
+                key={item.id}
                 className="p-3 bg-white border border-gray-200 rounded-lg"
               >
                 <p className="text-base sm:text-lg font-medium text-gray-800">
