@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { router, Link } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { MessageSquarePlus, History as HistoryIcon } from "lucide-react";
 import { BiUndo } from "react-icons/bi";
 import Select, { MultiValue, components, OptionProps } from "react-select";
@@ -32,6 +32,7 @@ type MultiSelectProps = {
     onChange: (id: string, value: string[]) => void;
     placeholder: string;
 };
+
 
 function MultiSelect({ id, options, selected, onChange, placeholder }: MultiSelectProps) {
     const [open, setOpen] = useState(false);
@@ -96,7 +97,12 @@ type FormDataType = {
     [key: string]: any;
 };
 
+type Diagnosis = { prediction: string; confidence?: number };
+
 export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
+    const { props } = usePage() as { props: { diagnosis?: Diagnosis; inputSymptoms?: string[]; errors?: Record<string, string> } };
+
+
     const [step, setStep] = useState<number>(1);
     const [formData, setFormData] = useState<FormDataType>({});
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -133,19 +139,14 @@ export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
     };
 
     const handleSubmit = () => {
-        const step2 = questions.filter(q => q.step === 2);
-        if (
-            step2.some(
-                q =>
-                    q.required &&
-                    (formData[q.id] === undefined ||
-                        (Array.isArray(formData[q.id]) ? formData[q.id].length === 0 : !formData[q.id]))
-            )
-        ) {
-            return setShowValidationModal(true);
+        const main = formData["mainSymptom"];
+        if (!Array.isArray(main) || main.length === 0) {
+            setShowValidationModal(true);
+            return;
         }
-        localStorage.setItem("symptomForm", JSON.stringify(formData));
-        router.get("/results");
+        router.post("/diagnose", {
+            symptoms: formData["mainSymptom"] || []
+        });
     };
 
     const resetForm = () => {
@@ -260,37 +261,37 @@ export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
                         </>
                     )}
 
-                <div className="mt-8 flex justify-between">
-                    {step === 1 ? (
+                    <div className="mt-8 flex justify-between">
+                        {step === 1 ? (
+                            <button
+                                onClick={() => router.get("/welcome")}
+                                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
+                            >
+                                <BiUndo />
+                                Back
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => setStep(1)}
+                                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
+                            >
+                                <BiUndo />
+                                Back
+                            </button>
+                        )}
                         <button
-                            onClick={() => router.get("/welcome")}
-                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
+                            onClick={step === 1 ? handleNext : handleSubmit}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg"
                         >
-                            <BiUndo />
-                            Back
+                            {step === 1 ? "Next" : "Submit"}
                         </button>
-                    ) : (
-                        <button
-                            onClick={() => setStep(1)}
-                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg"
-                        >
-                            <BiUndo />
-                            Back
-                        </button>
-                    )}
-                    <button
-                        onClick={step === 1 ? handleNext : handleSubmit}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg"
-                    >
-                        {step === 1 ? "Next" : "Submit"}
-                    </button>
-                </div>
+                    </div>
 
-                <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                    PiKrous can be wrong, please double check!
-                </p>
-            </div>
-        </main>
-    </div>
-  );
+                    <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        PiKrous can be wrong, please double check!
+                    </p>
+                </div>
+            </main>
+        </div>
+    );
 }

@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'ml' => [
+        'url' => env('ML_URL', 'http://127.0.0.1:8000'),
+        'key' => env('ML_API_KEY', null),
+    ],
 
 ];
