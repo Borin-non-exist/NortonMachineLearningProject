@@ -64,9 +64,17 @@ const ProfileMenu: React.FC<{
 const NavbarAuthActions: React.FC = () => {
   const { props } = usePage<{ auth?: { user?: any } }>();
   const user = props.auth?.user;
+  const { auth } = usePage().props as any;
 
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  // get profile image
+  const profileImage =
+    auth?.user?.image
+      ? (auth.user.image.startsWith('users/')
+        ? `/storage/${auth.user.image}`
+        : `/assets/${auth.user.image.replace(/^\/+/, '')}`)
+      : "/assets/User.png";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,7 +98,7 @@ const NavbarAuthActions: React.FC = () => {
           className="flex items-center gap-2 focus:outline-none"
         >
           <img
-            src={user.image || "/assets/User.png"}
+            src={profileImage}
             alt={user.user_name}
             className="h-7 w-7 rounded-full object-cover border"
           />

@@ -35,6 +35,14 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // For edit password fields
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showEditConfirmPassword, setShowEditConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,6 +97,20 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
     setForm({ ...emptyForm });
     setIsModalOpen(true);
     setMenuOpenIndex(null);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  // Open Edit Modal
+  const openEditModal = (index: number) => {
+    setEditingIndex(index);
+    setForm({ ...filtered[index], password: "", password_confirmation: "" });
+    setIsModalOpen(true);
+    setMenuOpenIndex(null);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
   const openViewModal = (index: number) => {
     setViewDoctor(filtered[index]);
@@ -110,22 +132,41 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      if (value !== undefined && value !== null)
-        formData.append(key, value);
-    });
-
-    router.post("/listdoctor", form as any, {
-      forceFormData: true, // tells Inertia to send as multipart/form-data
-      onSuccess: () => {
-        if (window.confirm('Account created successfully! Click OK to go to Doctor List.')) {
-        }
-        setIsModalOpen(false);
-        setForm({ ...emptyForm });
-      },
-      onError: (errors) => setErrors(errors),
-    });
+    if (editingIndex !== null) {
+      // Edit mode: update doctor
+      const doctorId = filtered[editingIndex].id;
+      const editPayload: any = {
+        ...form,
+        _method: "put",
+        current_password: currentPassword,
+        password: newPassword,
+        password_confirmation: confirmPassword,
+      };
+      router.post(`/listdoctor/${doctorId}`, editPayload, {
+        forceFormData: true,
+        onSuccess: () => {
+          setIsModalOpen(false);
+          setEditingIndex(null);
+          setForm({ ...emptyForm });
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        },
+        onError: (errors) => setErrors(errors),
+      });
+    } else {
+      // Add mode: create doctor
+      router.post("/listdoctor", form as any, {
+        forceFormData: true, // tells Inertia to send as multipart/form-data
+        onSuccess: () => {
+          if (window.confirm('Account created successfully! Click OK to go to Doctor List.')) {
+          }
+          setIsModalOpen(false);
+          setForm({ ...emptyForm });
+        },
+        onError: (errors) => setErrors(errors),
+      });
+    }
   };
 
   // Filter and paginate doctors
@@ -254,6 +295,12 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                           >
                             View Details
                           </button>
+                          <button
+                            onClick={() => openEditModal(realIndex)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900"
+                          >
+                            Edit
+                          </button>
                           {/* <button
                             onClick={() => handleDelete(d.id)}
                             className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-900"
@@ -327,7 +374,7 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-center items-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl p-6 space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-              Add New Doctor
+              {editingIndex !== null ? "Edit Doctor" : "Add New Doctor"}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -344,57 +391,133 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                   </select>
                   <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" required />
 
-                  {/* Password Field */}
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      id="password"
-                      placeholder="Password"
-                      value={form.password}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-5 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
-                    >
-                      {showPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
-                    </button>
-                    <p className="text-xs dark:text-gray-200 pt-1">
-                      Must be 8+ characters with number, symbol, upper and lower case.
-                    </p>
-                    {errors.password && (
-                      <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password}</p>
-                    )}
-                  </div>
+                  {/* Password fields for Add Doctor */}
+                  {editingIndex === null && (
+                    <>
+                      {/* Password Field */}
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="password"
+                          id="password"
+                          placeholder="Password"
+                          value={form.password}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          className="absolute right-3 top-5 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                        >
+                          {showPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
+                        </button>
+                        <p className="text-xs dark:text-gray-200 pt-1">
+                          Must be 8+ characters with number, symbol, upper and lower case.
+                        </p>
+                        {errors.password && (
+                          <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password}</p>
+                        )}
+                      </div>
+                      {/* Confirm Password Field */}
+                      <div className="relative">
+                        <input
+                          type={showConfirm ? "text" : "password"}
+                          name="password_confirmation"
+                          id="password_confirmation"
+                          placeholder="Confirm Password"
+                          value={form.password_confirmation}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirm((v) => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2  dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                        >
+                          {showConfirm ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
+                        </button>
+                        {errors.password_confirmation && (
+                          <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password_confirmation}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
 
-
-                  {/* Confirm Password Field */}
-                  <div className="relative">
-                    <input
-                      type={showConfirm ? "text" : "password"}
-                      name="password_confirmation"
-                      id="password_confirmation"
-                      placeholder="Confirm Password"
-                      value={form.password_confirmation}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2  dark:text-gray-200 p-1 rounded-full focus:outline-none"
-                    >
-                      {showConfirm ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
-                    </button>
-                    {errors.password_confirmation && (
-                      <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password_confirmation}</p>
-                    )}
-                  </div>
+                  {/* Change Password fields for Edit Doctor */}
+                  {editingIndex !== null && (
+                    <div className="space-y-4 mt-6">
+                      <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-300 mb-2">Change Password</h3>
+                      {/* Current Password */}
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          placeholder="Current Password"
+                          value={currentPassword}
+                          onChange={e => setCurrentPassword(e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                          tabIndex={-1}
+                        >
+                          {showCurrentPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
+                        </button>
+                        {errors.current_password && (
+                          <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.current_password}</p>
+                        )}
+                      </div>
+                      {/* New Password */}
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="New Password"
+                          value={newPassword}
+                          onChange={e => setNewPassword(e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                          tabIndex={-1}
+                        >
+                          {showNewPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
+                        </button>
+                        <p className="text-xs dark:text-gray-200 pt-1">
+                          Must be 8+ characters with number, symbol, upper and lower case.
+                        </p>
+                        {errors.password && (
+                          <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password}</p>
+                        )}
+                      </div>
+                      {/* Confirm New Password */}
+                      <div className="relative">
+                        <input
+                          type={showEditConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm New Password"
+                          value={confirmPassword}
+                          onChange={e => setConfirmPassword(e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 pr-12 text-base"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowEditConfirmPassword(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-gray-200 p-1 rounded-full focus:outline-none"
+                          tabIndex={-1}
+                        >
+                          {showEditConfirmPassword ? <FaEye size={18}/> : <FaEyeSlash size={18}/>}
+                        </button>
+                        {errors.password_confirmation && (
+                          <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.password_confirmation}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-32 h-32 border border-gray-300 dark:border-gray-600 rounded-full overflow-hidden flex items-center justify-center">
@@ -431,7 +554,7 @@ export default function ListDoctor({ doctors = [] }: ListDoctorProps) {
                   Cancel
                 </button>
                 <button type="submit" className="px-6 py-2 rounded-lg bg-blue-600 dark:bg-blue-900 text-white hover:bg-blue-700 dark:hover:bg-blue-950">
-                  Add
+                  {editingIndex !== null ? "Update" : "Add"}
                 </button>
               </div>
             </form>

@@ -25,7 +25,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/welcome', fn() => Inertia::render('WelcomePage/WelcomePage'))->name('welcome');
+
 
 // If you want to enable About/Privacy/AboutUs, uncomment and point to your React pages
 /*
@@ -49,7 +49,7 @@ require __DIR__ . '/auth.php';
 Route::middleware('auth')->group(function () {
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('settings.profile.edit');
     Route::post('/settings/profile', [ProfileController::class, 'update'])->name('settings.profile.update');
-    
+
     // Password update route
     Route::post('/settings/password', [ProfileController::class, 'updatePassword'])->name('settings.password.update');
 });
@@ -67,6 +67,10 @@ Route::middleware('auth')->get('/redirect-by-role', function () {
 
 
 //    ROLE-BASED ROUTES
+// Public routes
+Route::get('/welcome', fn() => Inertia::render('WelcomePage/WelcomePage'))->name('welcome');
+Route::get('/symptom-form', fn() => Inertia::render('WelcomePage/SymptomPage'))->name('symptom-form');
+
 
 // Admin-only routes
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
