@@ -91,6 +91,7 @@ function MultiSelect({ id, options, selected, onChange, placeholder }: MultiSele
 
 type SymptomPageProps = {
     symptoms: string[];
+    priorIllnesses: string[];
 };
 
 type FormDataType = {
@@ -99,7 +100,7 @@ type FormDataType = {
 
 type Diagnosis = { prediction: string; confidence?: number };
 
-export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
+export default function SymptomFormPage({ symptoms = [], priorIllnesses = [] }: SymptomPageProps) {
     const { props } = usePage() as { props: { diagnosis?: Diagnosis; inputSymptoms?: string[]; errors?: Record<string, string> } };
 
 
@@ -145,7 +146,8 @@ export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
             return;
         }
         router.post("/diagnose", {
-            symptoms: formData["mainSymptom"] || []
+            symptoms: formData["mainSymptom"] || [],
+            priorIllnesses: formData["priorIllnesses"] || []
         });
     };
 
@@ -239,16 +241,10 @@ export default function SymptomFormPage({ symptoms = [] }: SymptomPageProps) {
                                     isMulti
                                     isSearchable
                                     closeMenuOnSelect={false}
-                                    options={[
-                                        { value: "Diabetes", label: "Diabetes" },
-                                        { value: "Hypertension", label: "Hypertension" },
-                                        { value: "Asthma", label: "Asthma" },
-                                        { value: "Heart Disease", label: "Heart Disease" },
-                                        { value: "Kidney Disease", label: "Kidney Disease" },
-                                        { value: "Liver Disease", label: "Liver Disease" },
-                                        { value: "Cancer", label: "Cancer" },
-                                        { value: "None", label: "None" }
-                                    ]}
+                                    options={priorIllnesses.map((ill) => ({
+                                        value: ill,
+                                        label: ill
+                                    }))}
                                     value={(formData["priorIllnesses"] || []).map((s: string) => ({ value: s, label: s }))}
                                     onChange={(val: MultiValue<{ value: string; label: string }>) =>
                                         handleChange("priorIllnesses", val.map(v => v.value))

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Symptom;
+use App\Models\Priorillness;
 
 class SymptomController extends Controller
 {
@@ -26,9 +27,11 @@ class SymptomController extends Controller
     }
     public function symptomFormPage()
     {
-        $symptoms = \App\Models\Symptom::pluck('name');
+        $symptoms = Symptom::pluck('name');
+        $priorIllnesses = Priorillness::pluck('priorillness_name');
         return inertia('WelcomePage/SymptomPage', [
             'symptoms' => $symptoms,
+            'priorIllnesses' => $priorIllnesses,
         ]);
     }
 }

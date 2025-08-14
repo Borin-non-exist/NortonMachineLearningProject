@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\DiseaseController;
 use App\Http\Controllers\Admin\SymptomController;
 use App\Http\Controllers\Admin\KnowledgebaseController;
 use App\Http\Controllers\Admin\PriorillnessController;
+use App\Http\Controllers\Api\DiagnosisController;
+
 
 // Public routes
 
@@ -70,7 +72,8 @@ Route::middleware('auth')->get('/redirect-by-role', function () {
 // Public routes
 Route::get('/welcome', fn() => Inertia::render('WelcomePage/WelcomePage'))->name('welcome');
 Route::get('/symptom-form', [App\Http\Controllers\Admin\SymptomController::class, 'symptomFormPage'])->name('symptom-form');
-Route::get('/result', fn() => Inertia::render('WelcomePage/resultspage'))->name('result');
+Route::post('/diagnose', [DiagnosisController::class, 'store'])->name('diagnose.store');
+Route::get('/results', [DiagnosisController::class, 'showResults'])->name('diagnose.results');
 
 // Admin-only routes
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
@@ -98,3 +101,5 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin,doctor'])->group(func
     Route::post('/knowledgebases', [KnowledgebaseController::class, 'store'])->name('knowledgebases.store');
     Route::put('/knowledgebases/{id}', [KnowledgebaseController::class, 'update'])->name('knowledgebases.update');
 });
+
+// Symptom form page route for dynamic prior illnesses
