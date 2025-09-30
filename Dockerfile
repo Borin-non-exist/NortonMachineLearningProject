@@ -1,55 +1,61 @@
-# ============================
-# Stage 1: Build frontend (React + Inertia)
-# ============================
-FROM node:22 AS node-builder
+# ===========================
+#  Node Builder (React/Inertia)
+# ===========================
+FROM node:18 AS node-builder
 
 WORKDIR /app
 
-# Install Node dependencies
+# Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copy full project and build assets
+# Copy and build React/Inertia assets
 COPY . .
 RUN npm run build
 
 
-# ============================
-# Stage 2: Laravel (PHP + Composer + MySQL)
-# ============================
-FROM dunglas/frankenphp:php8.2.29-bookworm
+# ===========================
+#  PHP Builder (Composer)
+# ===========================
+FROM composer:2 AS composer-builder
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install PHP extensions and MySQL client
+
+# ===========================
+#  Final PHP Runtime
+# ===========================
+FROM php:8.2-fpm AS app
+
+# Install system dependencies & PHP extensions
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl \
-    default-mysql-client \
+    libzip-dev unzip git curl default-mysql-client \
     && docker-php-ext-install pdo pdo_mysql zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Set working directory
 WORKDIR /app
 
-# Copy project files
+# Copy app code
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Copy built frontend assets from Node stage
+# Copy built assets from Node
 COPY --from=node-builder /app/public /app/public
 
-# Prepare Laravel cache & storage
+# Copy vendor from Composer
+COPY --from=composer-builder /app/vendor /app/vendor
+
+# Prepare Laravel storage & cache
 RUN mkdir -p storage/framework/{sessions,views,cache} bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+    && chmod -R 775 storage bootstrap/cache
 
-# Expose port for Railway
-EXPOSE 8080
+# Clear & rebuild Laravel caches (don’t fail build if package missing)
+RUN php artisan config:clear || true \
+    && php artisan config:cache || true \
+    && php artisan route:cache || true \
+    && php artisan view:cache || true
 
-# Start Laravel server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Expose port for Laravel (you’ll run php-fpm behind nginx usually)
+EXPOSE 8000
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
